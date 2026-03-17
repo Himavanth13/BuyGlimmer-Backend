@@ -6,7 +6,6 @@ import com.buyglimmer.backend.dto.UserDtos;
 import com.buyglimmer.backend.service.AuthService;
 import com.buyglimmer.backend.service.WishlistService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -27,7 +26,7 @@ public class WishlistController {
         this.wishlistService = wishlistService;
     }
 
-    @GetMapping
+    @PostMapping("/list")
     public ApiResponse<List<CatalogDtos.ProductResponse>> wishlist(@RequestHeader("Authorization") String authorization) {
         authService.requireAuthorization(authorization);
         return new ApiResponse<>("wishlist", "success", wishlistService.fetchWishlist());

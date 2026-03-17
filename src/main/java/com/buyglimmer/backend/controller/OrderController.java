@@ -5,8 +5,6 @@ import com.buyglimmer.backend.dto.OrderDtos;
 import com.buyglimmer.backend.service.AuthService;
 import com.buyglimmer.backend.service.OrderService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -35,17 +33,22 @@ public class OrderController {
         return new ApiResponse<>("checkout", "success", orderService.checkout(request));
     }
 
-    @GetMapping
+    @PostMapping("/list")
     public ApiResponse<List<OrderDtos.OrderResponse>> orders(@RequestHeader("Authorization") String authorization) {
         authService.requireAuthorization(authorization);
         return new ApiResponse<>("orders", "success", orderService.fetchOrders());
     }
 
-    @GetMapping("/{orderId}")
+    @PostMapping("/detail")
     public ApiResponse<OrderDtos.OrderResponse> order(
             @RequestHeader("Authorization") String authorization,
-            @PathVariable String orderId) {
+            @RequestBody OrderDetailRequest request) {
         authService.requireAuthorization(authorization);
-        return new ApiResponse<>("order-detail", "success", orderService.fetchOrder(orderId));
+        return new ApiResponse<>("order-detail", "success", orderService.fetchOrder(request.orderId()));
+    }
+
+    public record OrderDetailRequest(
+            String orderId
+    ) {
     }
 }

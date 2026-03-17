@@ -5,8 +5,7 @@ import com.buyglimmer.backend.dto.UserDtos;
 import com.buyglimmer.backend.service.AuthService;
 import com.buyglimmer.backend.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,13 +23,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/profile")
+    @PostMapping("/profile")
     public ApiResponse<UserDtos.UserProfileResponse> profile(@RequestHeader("Authorization") String authorization) {
         authService.requireAuthorization(authorization);
         return new ApiResponse<>("user-profile", "success", userService.fetchProfile());
     }
 
-    @PutMapping("/profile")
+    @PostMapping("/profile/update")
     public ApiResponse<UserDtos.UserProfileResponse> updateProfile(
             @RequestHeader("Authorization") String authorization,
             @Valid @RequestBody UserDtos.UpdateProfileRequest request) {
