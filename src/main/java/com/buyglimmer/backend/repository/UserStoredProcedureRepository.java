@@ -1,0 +1,77 @@
+package com.buyglimmer.backend.repository;
+
+import com.buyglimmer.backend.dto.UserDtos;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public class UserStoredProcedureRepository {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public UserStoredProcedureRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public UserDtos.UserProfileResponse fetchProfile(String userId) {
+        List<UserDtos.UserProfileResponse> profiles = jdbcTemplate.query("select * from sp_fetch_user_profile(?)",
+                ps -> ps.setString(1, userId),
+                (rs, rowNum) -> new UserDtos.UserProfileResponse(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getString("address"),
+                        rs.getString("avatar")
+                ));
+        return profiles.stream().findFirst().orElseThrow();
+    }
+
+    public Optional<StoredUser> fetchUserByEmail(String email) {
+        List<StoredUser> users = jdbcTemplate.query("select * from sp_fetch_user_by_email(?)",
+                ps -> ps.setString(1, email),
+                (rs, rowNum) -> new StoredUser(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("password"),
+                        rs.getString("phone"),
+                        rs.getString("address"),
+                        rs.getString("avatar")
+                ));
+        return users.stream().findFirst();
+    }
+
+    public UserDtos.UserProfileResponse register(String name, String email, String password, String phone) {
+        String userId = jdbcTemplate.queryForObject("call sp_register_user(?, ?, ?, ?)", String.class, name, email, password, phone);
+        return fetchProfile(userId);
+    }
+
+    public UserDtos.UserProfileResponse updateProfile(String userId, UserDtos.UpdateProfileRequest request) {
+        String updatedUserId = jdbcTemplate.queryForObject(
+                "call sp_update_user_profile(?, ?, ?, ?, ?, ?)",
+                String.class,
+                userId,
+                request.name(),
+                request.email(),
+                request.phone(),
+                request.address(),
+                request.avatar()
+        );
+        return fetchProfile(updatedUserId);
+    }
+
+    public record StoredUser(
+            String id,
+            String name,
+            String email,
+            String password,
+            String phone,
+            String address,
+            String avatar
+    ) {
+    }
+}

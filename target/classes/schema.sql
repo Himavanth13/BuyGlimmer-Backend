@@ -1,0 +1,147 @@
+CREATE TABLE IF NOT EXISTS customer (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    email VARCHAR(150),
+    mobile VARCHAR(15),
+    password_hash VARCHAR(255),
+    status TINYINT DEFAULT 1,
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS address (
+    id VARCHAR(36) PRIMARY KEY,
+    customer_id VARCHAR(36),
+    type VARCHAR(20),
+    address_line CLOB,
+    city VARCHAR(100),
+    state VARCHAR(100),
+    pincode VARCHAR(10),
+    is_default BOOLEAN,
+    FOREIGN KEY (customer_id) REFERENCES customer(id)
+);
+
+CREATE TABLE IF NOT EXISTS category (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(150),
+    parent_id VARCHAR(36),
+    meta CLOB,
+    FOREIGN KEY (parent_id) REFERENCES category(id)
+);
+
+CREATE TABLE IF NOT EXISTS product (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(200),
+    description CLOB,
+    brand VARCHAR(150),
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS product_category (
+    product_id VARCHAR(36) NOT NULL,
+    category_id VARCHAR(36) NOT NULL,
+    PRIMARY KEY (product_id, category_id),
+    FOREIGN KEY (product_id) REFERENCES product(id),
+    FOREIGN KEY (category_id) REFERENCES category(id)
+);
+
+CREATE TABLE IF NOT EXISTS product_variant (
+    id VARCHAR(36) PRIMARY KEY,
+    product_id VARCHAR(36),
+    sku VARCHAR(100),
+    price DECIMAL(12,2),
+    mrp DECIMAL(12,2),
+    stock INT,
+    attributes CLOB,
+    images CLOB,
+    status BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (product_id) REFERENCES product(id)
+);
+
+CREATE TABLE IF NOT EXISTS cart (
+    id VARCHAR(36) PRIMARY KEY,
+    customer_id VARCHAR(36),
+    status VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customer(id)
+);
+
+CREATE TABLE IF NOT EXISTS cart_item (
+    id VARCHAR(36) PRIMARY KEY,
+    cart_id VARCHAR(36),
+    variant_id VARCHAR(36),
+    qty INT,
+    price DECIMAL(12,2),
+    FOREIGN KEY (cart_id) REFERENCES cart(id),
+    FOREIGN KEY (variant_id) REFERENCES product_variant(id)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id VARCHAR(36) PRIMARY KEY,
+    customer_id VARCHAR(36),
+    address_id VARCHAR(36),
+    total_amount DECIMAL(12,2),
+    status VARCHAR(20),
+    payment_status VARCHAR(20),
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customer(id),
+    FOREIGN KEY (address_id) REFERENCES address(id)
+);
+
+CREATE TABLE IF NOT EXISTS order_item (
+    id VARCHAR(36) PRIMARY KEY,
+    order_id VARCHAR(36),
+    variant_id VARCHAR(36),
+    qty INT,
+    price DECIMAL(12,2),
+    total DECIMAL(12,2),
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (variant_id) REFERENCES product_variant(id)
+);
+
+CREATE TABLE IF NOT EXISTS payment (
+    id VARCHAR(36) PRIMARY KEY,
+    order_id VARCHAR(36),
+    method VARCHAR(20),
+    gateway_txn_id VARCHAR(200),
+    amount DECIMAL(12,2),
+    status VARCHAR(20),
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+CREATE TABLE IF NOT EXISTS wishlist (
+    user_id VARCHAR(36) NOT NULL,
+    product_id VARCHAR(36) NOT NULL,
+    PRIMARY KEY (user_id, product_id),
+    FOREIGN KEY (user_id) REFERENCES customer(id),
+    FOREIGN KEY (product_id) REFERENCES product(id)
+);
+
+CREATE ALIAS IF NOT EXISTS SP_FETCH_CATEGORIES FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchCategories";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_PRODUCTS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchProducts";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_PRODUCT_BY_ID FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchProductById";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_PRODUCT_IMAGES FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchProductImages";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_PRODUCT_SIZES FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchProductSizes";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_PRODUCT_COLORS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchProductColors";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_PRODUCT_SPECS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchProductSpecs";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_PRODUCT_REVIEWS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchProductReviews";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_USER_PROFILE FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchUserProfile";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_USER_BY_EMAIL FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchUserByEmail";
+CREATE ALIAS IF NOT EXISTS SP_REGISTER_USER FOR "com.buyglimmer.backend.config.H2StoredProcedures.spRegisterUser";
+CREATE ALIAS IF NOT EXISTS SP_UPDATE_USER_PROFILE FOR "com.buyglimmer.backend.config.H2StoredProcedures.spUpdateUserProfile";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_WISHLIST FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchWishlist";
+CREATE ALIAS IF NOT EXISTS SP_TOGGLE_WISHLIST FOR "com.buyglimmer.backend.config.H2StoredProcedures.spToggleWishlist";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_CART FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchCart";
+CREATE ALIAS IF NOT EXISTS SP_ADD_CART_ITEM FOR "com.buyglimmer.backend.config.H2StoredProcedures.spAddCartItem";
+CREATE ALIAS IF NOT EXISTS SP_DELETE_CART_ITEM FOR "com.buyglimmer.backend.config.H2StoredProcedures.spDeleteCartItem";
+CREATE ALIAS IF NOT EXISTS SP_CLEAR_CART FOR "com.buyglimmer.backend.config.H2StoredProcedures.spClearCart";
+CREATE ALIAS IF NOT EXISTS SP_UPSERT_ADDRESS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spUpsertAddress";
+CREATE ALIAS IF NOT EXISTS SP_CREATE_ORDER FOR "com.buyglimmer.backend.config.H2StoredProcedures.spCreateOrder";
+CREATE ALIAS IF NOT EXISTS SP_TRANSFER_CART_TO_ORDER FOR "com.buyglimmer.backend.config.H2StoredProcedures.spTransferCartToOrder";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_ORDERS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchOrders";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_ORDER_BY_ID FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchOrderById";
+CREATE ALIAS IF NOT EXISTS SP_FETCH_ORDER_ITEMS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchOrderItems";
