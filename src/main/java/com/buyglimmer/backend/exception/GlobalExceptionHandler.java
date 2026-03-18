@@ -4,6 +4,8 @@ import com.buyglimmer.backend.dto.ApiWrapperResponse;
 import com.buyglimmer.backend.util.ApiResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -47,6 +49,20 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ApiWrapperResponse<Object>> handleNotFound(NoSuchElementException exception) {
                 logger.warn("Resource not found: {}", exception.getMessage());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponseFactory.failed(null, exception.getMessage()));
+        }
+
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ApiWrapperResponse<Object>> handleDataIntegrity(DataIntegrityViolationException exception) {
+                logger.warn("Data integrity violation: {}", exception.getMessage());
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(apiResponseFactory.failed(null, "Duplicate or invalid data. Please use unique values."));
+        }
+
+        @ExceptionHandler(DataAccessException.class)
+        public ResponseEntity<ApiWrapperResponse<Object>> handleDataAccess(DataAccessException exception) {
+                logger.error("Database access exception", exception);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(apiResponseFactory.failed(null, "Database access error"));
         }
 
         @ExceptionHandler(Exception.class)

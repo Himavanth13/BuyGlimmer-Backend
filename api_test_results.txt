@@ -1,0 +1,14 @@
+Register: SUCCESS - Registration successful
+ProductsList: SUCCESS - Products fetched successfully
+ProductsDetail: SUCCESS - Product fetched successfully
+ProductsSearch: SUCCESS - Products search completed
+CartAdd: SUCCESS - Item added to cart
+CartGet: SUCCESS - Cart fetched successfully
+AddressAdd: SUCCESS - Address added successfully
+CouponValidate: FAILED - {"requestId":"008fabd3-6060-44f3-9673-f97f95d0e81e","status":"FAILED","message":"Database access error","data":null}
+OrdersCreate: SUCCESS - Order created successfully
+OrdersList: SUCCESS - Orders fetched successfully
+OrdersDetail: SUCCESS - Order detail fetched successfully
+PaymentsCreate: SUCCESS - Payment created successfully
+UserProfile: SUCCESS - Profile fetched successfully
+UserUpdate: SUCCESS - Profile updated successfully

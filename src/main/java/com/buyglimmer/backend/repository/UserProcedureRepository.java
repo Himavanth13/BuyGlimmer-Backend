@@ -1,61 +1,91 @@
 package com.buyglimmer.backend.repository;
 
 import com.buyglimmer.backend.dto.FintechDtos;
-import com.buyglimmer.backend.util.DbCallUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class UserProcedureRepository {
 
-    private final DbCallUtils dbCallUtils;
+    private final JdbcTemplate jdbcTemplate;
 
-    public UserProcedureRepository(DbCallUtils dbCallUtils) {
-        this.dbCallUtils = dbCallUtils;
+    public UserProcedureRepository(JdbcTemplate jdbcTemplate) {
+    this.jdbcTemplate = jdbcTemplate;
     }
 
     public FintechDtos.UserProfileResponse getProfile(String customerId) {
-        return dbCallUtils.callForObject("{call sp_get_profile(?)}",
-                cs -> cs.setString(1, customerId),
-                rs -> new FintechDtos.UserProfileResponse(
+    List<FintechDtos.UserProfileResponse> rows = jdbcTemplate.query("""
+            SELECT id AS customer_id,
+                   name,
+                   email,
+                   mobile,
+                   status,
+                   created_at
+            FROM customer
+            WHERE id = ?
+            """,
+        ps -> ps.setString(1, customerId),
+        (rs, rowNum) -> new FintechDtos.UserProfileResponse(
                         rs.getString("customer_id"),
                         rs.getString("name"),
                         rs.getString("email"),
                         rs.getString("mobile"),
                         rs.getInt("status"),
-                        rs.getString("created_at")
+            toStringSafe(rs.getTimestamp("created_at"))
                 ));
+    if (rows.isEmpty()) {
+        throw new java.util.NoSuchElementException("User profile not found");
+    }
+    return rows.get(0);
     }
 
     public FintechDtos.UserProfileResponse updateProfile(FintechDtos.UserUpdateRequest request) {
-        return dbCallUtils.callForObject("{call sp_update_profile(?,?,?,?)}",
-                cs -> {
-                    cs.setString(1, request.customerId());
-                    cs.setString(2, request.name());
-                    cs.setString(3, request.email());
-                    cs.setString(4, request.mobile());
-                },
-                rs -> new FintechDtos.UserProfileResponse(
-                        rs.getString("customer_id"),
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        rs.getString("mobile"),
-                        rs.getInt("status"),
-                        rs.getString("created_at")
-                ));
+    jdbcTemplate.update("""
+            UPDATE customer
+            SET name = ?, email = ?, mobile = ?
+            WHERE id = ?
+            """,
+        request.name(), request.email(), request.mobile(), request.customerId());
+    return getProfile(request.customerId());
     }
 
     public FintechDtos.AddressResponse addAddress(FintechDtos.AddressAddRequest request) {
-        return dbCallUtils.callForObject("{call sp_add_address(?,?,?,?,?,?,?)}",
-                cs -> {
-                    cs.setString(1, request.customerId());
-                    cs.setString(2, request.type());
-                    cs.setString(3, request.addressLine());
-                    cs.setString(4, request.city());
-                    cs.setString(5, request.state());
-                    cs.setString(6, request.pincode());
-                    cs.setBoolean(7, Boolean.TRUE.equals(request.isDefault()));
-                },
-                rs -> new FintechDtos.AddressResponse(
+        if (Boolean.TRUE.equals(request.isDefault())) {
+            jdbcTemplate.update("UPDATE address SET is_default = FALSE WHERE customer_id = ?", request.customerId());
+        }
+
+        String addressId = UUID.randomUUID().toString();
+        jdbcTemplate.update("""
+                        INSERT INTO address(id, customer_id, type, address_line, city, state, pincode, is_default)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                addressId,
+                request.customerId(),
+                request.type(),
+                request.addressLine(),
+                request.city(),
+                request.state(),
+                request.pincode(),
+                Boolean.TRUE.equals(request.isDefault()));
+
+        List<FintechDtos.AddressResponse> rows = jdbcTemplate.query("""
+                        SELECT id AS address_id,
+                               customer_id,
+                               type,
+                               address_line,
+                               city,
+                               state,
+                               pincode,
+                               is_default
+                        FROM address
+                        WHERE id = ?
+                        """,
+                ps -> ps.setString(1, addressId),
+                (rs, rowNum) -> new FintechDtos.AddressResponse(
                         rs.getString("address_id"),
                         rs.getString("customer_id"),
                         rs.getString("type"),
@@ -65,5 +95,13 @@ public class UserProcedureRepository {
                         rs.getString("pincode"),
                         rs.getBoolean("is_default")
                 ));
+        if (rows.isEmpty()) {
+            throw new java.util.NoSuchElementException("Address not found after insert");
+        }
+        return rows.get(0);
+    }
+
+    private String toStringSafe(Timestamp timestamp) {
+        return timestamp == null ? null : timestamp.toString();
     }
 }

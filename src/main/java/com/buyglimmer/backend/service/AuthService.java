@@ -34,7 +34,7 @@ public class AuthService {
         UserStoredProcedureRepository.StoredUser storedUser = userRepository.fetchUserByEmail(request.email())
                 .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Invalid login credentials", java.util.List.of("Use a registered BuyGlimmer account.")));
 
-        if (!storedUser.password().equals(request.password())) {
+        if (storedUser.password() == null || !storedUser.password().equals(request.password())) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid login credentials", java.util.List.of("Use the registered BuyGlimmer email to access the demo session."));
         }
 
