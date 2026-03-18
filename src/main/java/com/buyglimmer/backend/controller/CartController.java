@@ -5,6 +5,7 @@ import com.buyglimmer.backend.dto.CartDtos;
 import com.buyglimmer.backend.service.AuthService;
 import com.buyglimmer.backend.service.CartService;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -25,7 +26,7 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @PostMapping("/list")
+    @PostMapping
     public ApiResponse<List<CartDtos.CartItemResponse>> cart(@RequestHeader("Authorization") String authorization) {
         authService.requireAuthorization(authorization);
         return new ApiResponse<>("cart", "success", cartService.fetchCart());
@@ -39,17 +40,12 @@ public class CartController {
         return new ApiResponse<>("cart-add", "success", cartService.addItem(request));
     }
 
-    @PostMapping("/items/remove")
+    @PostMapping("/items/{cartItemId}")
     public ApiResponse<Void> removeItem(
             @RequestHeader("Authorization") String authorization,
-            @Valid @RequestBody RemoveCartItemRequest request) {
+            @PathVariable String cartItemId) {
         authService.requireAuthorization(authorization);
-        cartService.removeItem(request.cartItemId());
+        cartService.removeItem(cartItemId);
         return new ApiResponse<>("cart-remove", "success", null);
-    }
-
-    public record RemoveCartItemRequest(
-            String cartItemId
-    ) {
     }
 }

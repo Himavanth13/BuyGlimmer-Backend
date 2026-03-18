@@ -6,19 +6,19 @@ Spring Boot 3 backend scaffold for the BuyGlimmer storefront.
 
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
-- `GET /api/v1/users/profile`
-- `PUT /api/v1/users/profile`
-- `GET /api/v1/categories`
-- `GET /api/v1/products`
-- `GET /api/v1/products/{id}`
-- `GET /api/v1/wishlist`
+- `POST /api/v1/users/profile`
+- `POST /api/v1/users/profile/update`
+- `POST /api/v1/categories`
+- `POST /api/v1/products`
+- `POST /api/v1/products/{id}`
+- `POST /api/v1/wishlist`
 - `POST /api/v1/wishlist/toggle`
-- `GET /api/v1/cart`
+- `POST /api/v1/cart`
 - `POST /api/v1/cart/items`
-- `DELETE /api/v1/cart/items/{cartItemId}`
+- `POST /api/v1/cart/items/{cartItemId}`
 - `POST /api/v1/orders/checkout`
-- `GET /api/v1/orders`
-- `GET /api/v1/orders/{orderId}`
+- `POST /api/v1/orders`
+- `POST /api/v1/orders/{orderId}`
 
 ## Project structure
 

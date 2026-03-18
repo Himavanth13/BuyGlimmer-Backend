@@ -26,7 +26,7 @@ public class WishlistController {
         this.wishlistService = wishlistService;
     }
 
-    @PostMapping("/list")
+    @PostMapping
     public ApiResponse<List<CatalogDtos.ProductResponse>> wishlist(@RequestHeader("Authorization") String authorization) {
         authService.requireAuthorization(authorization);
         return new ApiResponse<>("wishlist", "success", wishlistService.fetchWishlist());
