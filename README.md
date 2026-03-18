@@ -2,32 +2,77 @@
 
 Spring Boot 3 backend scaffold for the BuyGlimmer storefront.
 
-## Covered API flows
+## Fintech Wrapper Contract
 
-- `POST /api/v1/auth/register`
-- `POST /api/v1/auth/login`
-- `POST /api/v1/users/profile`
-- `POST /api/v1/users/profile/update`
-- `POST /api/v1/categories`
-- `POST /api/v1/products`
-- `POST /api/v1/products/{id}`
-- `POST /api/v1/wishlist`
-- `POST /api/v1/wishlist/toggle`
-- `POST /api/v1/cart`
-- `POST /api/v1/cart/items`
-- `POST /api/v1/cart/items/{cartItemId}`
-- `POST /api/v1/orders/checkout`
-- `POST /api/v1/orders`
-- `POST /api/v1/orders/{orderId}`
+### Request
+
+```json
+{
+	"token": "string",
+	"requestId": "string",
+	"data": {}
+}
+```
+
+### Response
+
+```json
+{
+	"requestId": "string",
+	"status": "SUCCESS/FAILED",
+	"message": "string",
+	"data": {}
+}
+```
+
+## Stored Procedure APIs (POST only)
+
+### Product
+
+- `POST /api/v1/products/list` -> `sp_get_products`
+- `POST /api/v1/products/detail` -> `sp_get_product`
+- `POST /api/v1/products/search` -> `sp_search_products`
+
+### Cart
+
+- `POST /api/v1/cart/add` -> `sp_add_to_cart`
+- `POST /api/v1/cart/get` -> `sp_get_cart`
+- `POST /api/v1/cart/update` -> `sp_update_cart_item`
+- `POST /api/v1/cart/remove` -> `sp_remove_cart_item`
+
+### Orders
+
+- `POST /api/v1/orders/create` -> `sp_create_order`, then `sp_add_order_items`
+- `POST /api/v1/orders/list` -> `sp_get_orders`
+- `POST /api/v1/orders/detail` -> `sp_get_order_detail`
+
+### Payments
+
+- `POST /api/v1/payments/create` -> `sp_create_payment`
+- `POST /api/v1/payments/verify` -> `sp_verify_payment`
+
+### User
+
+- `POST /api/v1/user/profile` -> `sp_get_profile`
+- `POST /api/v1/user/update` -> `sp_update_profile`
+
+### Address
+
+- `POST /api/v1/address/add` -> `sp_add_address`
+
+### Coupon
+
+- `POST /api/v1/coupons/validate` -> `sp_validate_coupon`
 
 ## Project structure
 
-- `controller`: REST entry points
-- `dto`: request and response contracts
-- `service`: application layer and in-memory domain logic
-- `exception`: centralized API error handling
-- root package classes: application bootstrap and typed properties
-- `config`: OpenAPI configuration
+- `controller`: REST entry points (wrapper based)
+- `service`: business orchestration layer
+- `repository`: JDBC CallableStatement + stored procedures only
+- `dto`: request/response contracts
+- `util`: response factory and DB call utility
+- `exception`: centralized wrapper error handling
+- `config`: OpenAPI and H2 stored procedure aliases
 
 ## Run locally
 
@@ -39,6 +84,4 @@ Swagger UI will be available at `/swagger-ui.html`.
 
 ## Notes
 
-This scaffold follows the same Spring Boot layout used in the referenced `sabbpegold` backend, but the domain is adapted to the BuyGlimmer frontend module.
-
-The current implementation is wired through stored procedures using Spring JDBC. For local development it uses H2 aliases as procedures so the structure is runnable out of the box and can be ported later to MySQL or PostgreSQL procedures with the same repository boundaries.
+The fintech API layer is implemented with strict `POST` endpoints, request/response wrappers, and JDBC `CallableStatement` stored procedure calls only.

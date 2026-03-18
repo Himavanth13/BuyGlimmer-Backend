@@ -113,6 +113,15 @@ CREATE TABLE IF NOT EXISTS payment (
     FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
+CREATE TABLE IF NOT EXISTS coupon (
+    id VARCHAR(36) PRIMARY KEY,
+    code VARCHAR(40) UNIQUE NOT NULL,
+    discount_type VARCHAR(20) NOT NULL,
+    discount_value DECIMAL(12,2) NOT NULL,
+    min_order_amount DECIMAL(12,2) DEFAULT 0,
+    active BOOLEAN DEFAULT TRUE
+);
+
 CREATE TABLE IF NOT EXISTS wishlist (
     user_id VARCHAR(36) NOT NULL,
     product_id VARCHAR(36) NOT NULL,
@@ -145,3 +154,21 @@ CREATE ALIAS IF NOT EXISTS SP_TRANSFER_CART_TO_ORDER FOR "com.buyglimmer.backend
 CREATE ALIAS IF NOT EXISTS SP_FETCH_ORDERS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchOrders";
 CREATE ALIAS IF NOT EXISTS SP_FETCH_ORDER_BY_ID FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchOrderById";
 CREATE ALIAS IF NOT EXISTS SP_FETCH_ORDER_ITEMS FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchOrderItems";
+
+CREATE ALIAS IF NOT EXISTS sp_get_products FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetProducts";
+CREATE ALIAS IF NOT EXISTS sp_get_product FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetProduct";
+CREATE ALIAS IF NOT EXISTS sp_search_products FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spSearchProducts";
+CREATE ALIAS IF NOT EXISTS sp_add_to_cart FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spAddToCart";
+CREATE ALIAS IF NOT EXISTS sp_get_cart FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetCart";
+CREATE ALIAS IF NOT EXISTS sp_update_cart_item FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spUpdateCartItem";
+CREATE ALIAS IF NOT EXISTS sp_remove_cart_item FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spRemoveCartItem";
+CREATE ALIAS IF NOT EXISTS sp_create_order FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spCreateOrder";
+CREATE ALIAS IF NOT EXISTS sp_add_order_items FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spAddOrderItems";
+CREATE ALIAS IF NOT EXISTS sp_get_orders FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetOrders";
+CREATE ALIAS IF NOT EXISTS sp_get_order_detail FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetOrderDetail";
+CREATE ALIAS IF NOT EXISTS sp_create_payment FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spCreatePayment";
+CREATE ALIAS IF NOT EXISTS sp_verify_payment FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spVerifyPayment";
+CREATE ALIAS IF NOT EXISTS sp_get_profile FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetProfile";
+CREATE ALIAS IF NOT EXISTS sp_update_profile FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spUpdateProfile";
+CREATE ALIAS IF NOT EXISTS sp_add_address FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spAddAddress";
+CREATE ALIAS IF NOT EXISTS sp_validate_coupon FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spValidateCoupon";

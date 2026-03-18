@@ -5,6 +5,8 @@ import com.buyglimmer.backend.dto.AuthDtos;
 import com.buyglimmer.backend.dto.UserDtos;
 import com.buyglimmer.backend.exception.ApiException;
 import com.buyglimmer.backend.repository.UserStoredProcedureRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final BuyGlimmerProperties properties;
     private final UserService userService;
@@ -49,7 +53,15 @@ public class AuthService {
 
     public void requireAuthorization(String authorization) {
         String token = extractBearerToken(authorization);
+        validateToken(token);
+    }
+
+    public void validateToken(String token) {
+        if (token == null || token.isBlank()) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Missing authorization token", java.util.List.of("Authenticate with /api/v1/auth/login or /api/v1/auth/register first."));
+        }
         if (!activeTokens.contains(token)) {
+            logger.warn("Rejected token validation for inactive token");
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid or missing authorization token", java.util.List.of("Authenticate with /api/v1/auth/login or /api/v1/auth/register first."));
         }
     }

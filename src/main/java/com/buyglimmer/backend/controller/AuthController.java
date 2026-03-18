@@ -1,8 +1,10 @@
 package com.buyglimmer.backend.controller;
 
-import com.buyglimmer.backend.dto.ApiResponse;
+import com.buyglimmer.backend.dto.ApiWrapperRequest;
+import com.buyglimmer.backend.dto.ApiWrapperResponse;
 import com.buyglimmer.backend.dto.AuthDtos;
 import com.buyglimmer.backend.service.AuthService;
+import com.buyglimmer.backend.util.ApiResponseFactory;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,18 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final ApiResponseFactory apiResponseFactory;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, ApiResponseFactory apiResponseFactory) {
         this.authService = authService;
+        this.apiResponseFactory = apiResponseFactory;
     }
 
     @PostMapping("/register")
-    public ApiResponse<AuthDtos.AuthResponse> register(@Valid @RequestBody AuthDtos.RegisterRequest request) {
-        return new ApiResponse<>("register", "success", authService.register(request));
+    public ApiWrapperResponse<AuthDtos.AuthResponse> register(@Valid @RequestBody ApiWrapperRequest<AuthDtos.RegisterRequest> request) {
+        return apiResponseFactory.success(request.requestId(), "Registration successful", authService.register(request.data()));
     }
 
     @PostMapping("/login")
-    public ApiResponse<AuthDtos.AuthResponse> login(@Valid @RequestBody AuthDtos.LoginRequest request) {
-        return new ApiResponse<>("login", "success", authService.login(request));
+    public ApiWrapperResponse<AuthDtos.AuthResponse> login(@Valid @RequestBody ApiWrapperRequest<AuthDtos.LoginRequest> request) {
+        return apiResponseFactory.success(request.requestId(), "Login successful", authService.login(request.data()));
     }
 }

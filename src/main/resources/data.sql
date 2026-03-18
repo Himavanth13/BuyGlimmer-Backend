@@ -34,3 +34,7 @@ INSERT INTO orders (id, customer_id, address_id, total_amount, status, payment_s
 
 INSERT INTO payment (id, order_id, method, gateway_txn_id, amount, status, meta, created_at) VALUES
 ('f11a12c2-1f70-11f1-9651-ed7fb304f8d2', 'e11a12c2-1f70-11f1-9651-ed7fb304f8d2', 'upi', NULL, 0.00, 'pending', NULL, CURRENT_TIMESTAMP);
+
+INSERT INTO coupon (id, code, discount_type, discount_value, min_order_amount, active) VALUES
+('0a7738d2-0f2b-4ff0-a53f-44fa8f62211f', 'SAVE10', 'PERCENT', 10.00, 1000.00, TRUE),
+('298f6699-5d53-4b8c-bd66-1f8fb7d4a5ee', 'FLAT200', 'FLAT', 200.00, 1500.00, TRUE);
