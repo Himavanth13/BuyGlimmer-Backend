@@ -4,10 +4,7 @@ import com.buyglimmer.backend.dto.FintechDtos;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.List;
-import java.util.UUID;
 
 @Repository
 public class OrderProcedureRepository {
@@ -19,50 +16,40 @@ public class OrderProcedureRepository {
     }
 
     public FintechDtos.OrderSummaryResponse createOrder(FintechDtos.OrderCreateRequest request) {
-    String orderId = UUID.randomUUID().toString();
-    String meta = "{\"coupon\":\"" + (request.couponCode() == null ? "" : request.couponCode())
-        + "\",\"paymentMethod\":\"" + request.paymentMethod() + "\"}";
-    jdbcTemplate.update("""
-            INSERT INTO orders(id, customer_id, address_id, total_amount, status, payment_status, meta, created_at)
-            VALUES (?, ?, ?, 0, 'pending', 'pending', ?, CURRENT_TIMESTAMP)
-            """,
-        orderId, request.customerId(), request.addressId(), meta);
-    return getOrderSummary(orderId);
+    List<FintechDtos.OrderSummaryResponse> rows = jdbcTemplate.query("CALL sp_create_order(?, ?, ?, ?)",
+        ps -> {
+            ps.setString(1, request.customerId());
+            ps.setString(2, request.addressId());
+            ps.setString(3, request.couponCode());
+            ps.setString(4, request.paymentMethod());
+        },
+        (rs, rowNum) -> new FintechDtos.OrderSummaryResponse(
+            rs.getString("order_id"),
+            rs.getString("customer_id"),
+            rs.getBigDecimal("total_amount"),
+            rs.getString("status"),
+            rs.getString("payment_status"),
+            rs.getString("created_at")
+        ));
+    if (rows.isEmpty()) {
+        throw new java.util.NoSuchElementException("Order not created");
+    }
+    return rows.get(0);
     }
 
     public void addOrderItem(String orderId, FintechDtos.OrderItemInput itemInput) {
-    BigDecimal total = itemInput.price().multiply(BigDecimal.valueOf(itemInput.quantity()));
-    jdbcTemplate.update("""
-            INSERT INTO order_item(id, order_id, variant_id, qty, price, total)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-        UUID.randomUUID().toString(),
+    jdbcTemplate.queryForObject(
+        "CALL sp_add_order_items(?, ?, ?, ?)",
+        String.class,
         orderId,
         itemInput.variantId(),
         itemInput.quantity(),
-        itemInput.price(),
-        total);
-
-    jdbcTemplate.update("""
-            UPDATE orders
-            SET total_amount = (SELECT COALESCE(SUM(total), 0) FROM order_item WHERE order_id = ?)
-            WHERE id = ?
-            """,
-        orderId, orderId);
+        itemInput.price()
+    );
     }
 
     public List<FintechDtos.OrderSummaryResponse> getOrders(String customerId) {
-    return jdbcTemplate.query("""
-            SELECT id AS order_id,
-                   customer_id,
-                   total_amount,
-                   status,
-                   payment_status,
-                   created_at
-            FROM orders
-            WHERE customer_id = ?
-            ORDER BY created_at DESC
-            """,
+    return jdbcTemplate.query("CALL sp_get_orders(?)",
         ps -> ps.setString(1, customerId),
         (rs, rowNum) -> new FintechDtos.OrderSummaryResponse(
                         rs.getString("order_id"),
@@ -70,24 +57,12 @@ public class OrderProcedureRepository {
                         rs.getBigDecimal("total_amount"),
                         rs.getString("status"),
                         rs.getString("payment_status"),
-            toStringSafe(rs.getTimestamp("created_at"))
+            rs.getString("created_at")
                 ));
     }
 
     public List<FintechDtos.OrderItemResponse> getOrderItems(String orderId) {
-    return jdbcTemplate.query("""
-            SELECT oi.id AS order_item_id,
-                   oi.variant_id,
-                   p.name AS product_name,
-                   oi.qty AS quantity,
-                   oi.price,
-                   oi.total
-            FROM order_item oi
-            LEFT JOIN product_variant pv ON pv.id = oi.variant_id
-            LEFT JOIN product p ON p.id = pv.product_id
-            WHERE oi.order_id = ?
-            ORDER BY oi.id
-            """,
+    return jdbcTemplate.query("CALL sp_get_order_detail(?)",
         ps -> ps.setString(1, orderId),
         (rs, rowNum) -> new FintechDtos.OrderItemResponse(
                         rs.getString("order_item_id"),
@@ -96,20 +71,14 @@ public class OrderProcedureRepository {
                         rs.getInt("quantity"),
                         rs.getBigDecimal("price"),
                         rs.getBigDecimal("total")
-                ));
+                ))
+            .stream()
+            .filter(item -> item.orderItemId() != null)
+            .toList();
     }
 
     public FintechDtos.OrderSummaryResponse getOrderSummary(String orderId) {
-        List<FintechDtos.OrderSummaryResponse> rows = jdbcTemplate.query("""
-                        SELECT id AS order_id,
-                               customer_id,
-                               total_amount,
-                               status,
-                               payment_status,
-                               created_at
-                        FROM orders
-                        WHERE id = ?
-                        """,
+        List<FintechDtos.OrderSummaryResponse> rows = jdbcTemplate.query("CALL sp_get_order_detail(?)",
                 ps -> ps.setString(1, orderId),
                         (rs, rowNum) -> new FintechDtos.OrderSummaryResponse(
                         rs.getString("order_id"),
@@ -117,15 +86,11 @@ public class OrderProcedureRepository {
                         rs.getBigDecimal("total_amount"),
                         rs.getString("status"),
                         rs.getString("payment_status"),
-                        toStringSafe(rs.getTimestamp("created_at"))
+                        rs.getString("created_at")
                 ));
         if (rows.isEmpty()) {
             throw new java.util.NoSuchElementException("Order not found");
         }
         return rows.get(0);
-    }
-
-    private String toStringSafe(Timestamp timestamp) {
-        return timestamp == null ? null : timestamp.toString();
     }
 }

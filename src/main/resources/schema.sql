@@ -113,6 +113,75 @@ CREATE TABLE IF NOT EXISTS payment (
     FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
+CREATE TABLE IF NOT EXISTS delivery (
+    id VARCHAR(36) PRIMARY KEY,
+    order_id VARCHAR(36) NOT NULL,
+    address_id VARCHAR(36),
+    status VARCHAR(20) DEFAULT 'pending',
+    tracking_number VARCHAR(100),
+    carrier VARCHAR(100),
+    estimated_delivery_date DATE,
+    actual_delivery_date DATE,
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (address_id) REFERENCES address(id)
+);
+
+CREATE TABLE IF NOT EXISTS invoice (
+    id VARCHAR(36) PRIMARY KEY,
+    order_id VARCHAR(36) NOT NULL,
+    invoice_number VARCHAR(50) UNIQUE NOT NULL,
+    invoice_date TIMESTAMP,
+    total_amount DECIMAL(12,2),
+    tax_amount DECIMAL(12,2),
+    discount_amount DECIMAL(12,2),
+    status VARCHAR(20) DEFAULT 'generated',
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+CREATE TABLE IF NOT EXISTS returns (
+    id VARCHAR(36) PRIMARY KEY,
+    order_id VARCHAR(36) NOT NULL,
+    reason VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'initiated',
+    return_date TIMESTAMP,
+    notes CLOB,
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+CREATE TABLE IF NOT EXISTS refunds (
+    id VARCHAR(36) PRIMARY KEY,
+    return_id VARCHAR(36) NOT NULL,
+    amount DECIMAL(12,2),
+    status VARCHAR(20) DEFAULT 'pending',
+    refund_date TIMESTAMP,
+    gateway_txn_id VARCHAR(200),
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (return_id) REFERENCES returns(id)
+);
+
+CREATE TABLE IF NOT EXISTS email_notifications (
+    id VARCHAR(36) PRIMARY KEY,
+    customer_id VARCHAR(36),
+    order_id VARCHAR(36),
+    email_type VARCHAR(50),
+    recipient_email VARCHAR(150) NOT NULL,
+    subject VARCHAR(255),
+    status VARCHAR(20) DEFAULT 'pending',
+    sent_at TIMESTAMP,
+    error_message CLOB,
+    meta CLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customer(id),
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
 CREATE TABLE IF NOT EXISTS coupon (
     id VARCHAR(36) PRIMARY KEY,
     code VARCHAR(40) UNIQUE NOT NULL,
@@ -172,3 +241,32 @@ CREATE ALIAS IF NOT EXISTS sp_get_profile FOR "com.buyglimmer.backend.config.H2F
 CREATE ALIAS IF NOT EXISTS sp_update_profile FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spUpdateProfile";
 CREATE ALIAS IF NOT EXISTS sp_add_address FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spAddAddress";
 CREATE ALIAS IF NOT EXISTS sp_validate_coupon FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spValidateCoupon";
+
+CREATE ALIAS IF NOT EXISTS sp_fetch_user_profile FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchUserProfile";
+CREATE ALIAS IF NOT EXISTS sp_fetch_user_by_email FOR "com.buyglimmer.backend.config.H2StoredProcedures.spFetchUserByEmail";
+CREATE ALIAS IF NOT EXISTS sp_register_user FOR "com.buyglimmer.backend.config.H2StoredProcedures.spRegisterUser";
+CREATE ALIAS IF NOT EXISTS sp_update_user_profile FOR "com.buyglimmer.backend.config.H2StoredProcedures.spUpdateUserProfile";
+
+-- Delivery procedures
+CREATE ALIAS IF NOT EXISTS sp_create_delivery FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spCreateDelivery";
+CREATE ALIAS IF NOT EXISTS sp_update_delivery_status FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spUpdateDeliveryStatus";
+CREATE ALIAS IF NOT EXISTS sp_get_delivery_by_order FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetDeliveryByOrder";
+
+-- Invoice procedures
+CREATE ALIAS IF NOT EXISTS sp_create_invoice FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spCreateInvoice";
+CREATE ALIAS IF NOT EXISTS sp_get_invoice_by_order FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetInvoiceByOrder";
+
+-- Returns procedures
+CREATE ALIAS IF NOT EXISTS sp_initiate_return FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spInitiateReturn";
+CREATE ALIAS IF NOT EXISTS sp_update_return_status FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spUpdateReturnStatus";
+CREATE ALIAS IF NOT EXISTS sp_get_returns_by_order FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetReturnsByOrder";
+
+-- Refunds procedures
+CREATE ALIAS IF NOT EXISTS sp_create_refund FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spCreateRefund";
+CREATE ALIAS IF NOT EXISTS sp_update_refund_status FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spUpdateRefundStatus";
+CREATE ALIAS IF NOT EXISTS sp_get_refund_by_return FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetRefundByReturn";
+
+-- Email notification procedures
+CREATE ALIAS IF NOT EXISTS sp_send_email_notification FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spSendEmailNotification";
+CREATE ALIAS IF NOT EXISTS sp_update_email_notification_status FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spUpdateEmailNotificationStatus";
+CREATE ALIAS IF NOT EXISTS sp_get_notifications_by_order FOR "com.buyglimmer.backend.config.H2FintechStoredProcedures.spGetNotificationsByOrder";

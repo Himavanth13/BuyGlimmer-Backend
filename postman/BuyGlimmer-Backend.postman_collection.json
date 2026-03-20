@@ -9,6 +9,10 @@
     { "key": "baseUrl", "value": "http://localhost:8080" },
     { "key": "token", "value": "replace-with-auth-token" },
     { "key": "requestId", "value": "req-001" },
+    { "key": "registerName", "value": "Postman User" },
+    { "key": "registerEmail", "value": "postman@example.com" },
+    { "key": "registerPhone", "value": "9000000000" },
+    { "key": "registerPassword", "value": "StrongPass@123" },
     { "key": "customerId", "value": "CUST-1001" },
     { "key": "productId", "value": "PROD-1001" },
     { "key": "variantId", "value": "VAR-1001" },
@@ -28,6 +32,25 @@
       "item": [
         {
           "name": "Register",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = Date.now();",
+                  "const rand = Math.floor(Math.random() * 10000).toString().padStart(4, '0');",
+                  "const reqId = `req-${now}-${rand}`;",
+                  "const email = `postman.user.${now}.${rand}@example.com`;",
+                  "const phone = `9${Math.floor(100000000 + Math.random() * 900000000)}`;",
+                  "pm.collectionVariables.set('requestId', reqId);",
+                  "pm.collectionVariables.set('registerEmail', email);",
+                  "pm.collectionVariables.set('registerPhone', phone);",
+                  "console.log('Register payload vars set', { requestId: reqId, registerEmail: email, registerPhone: phone });"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -35,7 +58,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"StrongPass@123\",\n    \"phone\": \"9876543210\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"name\": \"{{registerName}}\",\n    \"email\": \"{{registerEmail}}\",\n    \"password\": \"{{registerPassword}}\",\n    \"phone\": \"{{registerPhone}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/auth/register"
           }

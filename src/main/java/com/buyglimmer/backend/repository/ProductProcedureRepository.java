@@ -16,19 +16,7 @@ public class ProductProcedureRepository {
     }
 
     public List<FintechDtos.ProductSummaryResponse> getProducts() {
-                return jdbcTemplate.query("""
-                                                SELECT p.id AS product_id,
-                                                           p.name,
-                                                           p.brand,
-                                                           p.description,
-                                                           MIN(v.price) AS price,
-                                                           MIN(v.mrp) AS mrp,
-                                                           SUM(v.stock) AS stock
-                                                FROM product p
-                                                JOIN product_variant v ON v.product_id = p.id
-                                                GROUP BY p.id, p.name, p.brand, p.description
-                                                ORDER BY p.name
-                                                """,
+                return jdbcTemplate.query("CALL sp_get_products()",
                 (rs, rowNum) -> new FintechDtos.ProductSummaryResponse(
                         rs.getString("product_id"),
                         rs.getString("name"),
@@ -41,22 +29,7 @@ public class ProductProcedureRepository {
     }
 
     public FintechDtos.ProductDetailResponse getProduct(String productId) {
-        List<FintechDtos.ProductDetailResponse> rows = jdbcTemplate.query("""
-                        SELECT p.id AS product_id,
-                               p.name,
-                               p.brand,
-                               p.description,
-                               v.price,
-                               v.mrp,
-                               v.stock,
-                               v.sku,
-                               v.images
-                        FROM product p
-                        JOIN product_variant v ON v.product_id = p.id
-                        WHERE p.id = ?
-                        ORDER BY v.price
-                        LIMIT 1
-                        """,
+        List<FintechDtos.ProductDetailResponse> rows = jdbcTemplate.query("CALL sp_get_product(?)",
                 ps -> ps.setString(1, productId),
                 (rs, rowNum) -> new FintechDtos.ProductDetailResponse(
                         rs.getString("product_id"),
@@ -77,25 +50,8 @@ public class ProductProcedureRepository {
     }
 
     public List<FintechDtos.ProductSummaryResponse> searchProducts(String keyword) {
-                String like = "%" + keyword + "%";
-                return jdbcTemplate.query("""
-                                                SELECT p.id AS product_id,
-                                                           p.name,
-                                                           p.brand,
-                                                           p.description,
-                                                           MIN(v.price) AS price,
-                                                           MIN(v.mrp) AS mrp,
-                                                           SUM(v.stock) AS stock
-                                                FROM product p
-                                                JOIN product_variant v ON v.product_id = p.id
-                                                WHERE LOWER(p.name) LIKE LOWER(?) OR LOWER(COALESCE(p.description, '')) LIKE LOWER(?)
-                                                GROUP BY p.id, p.name, p.brand, p.description
-                                                ORDER BY p.name
-                                                """,
-                                ps -> {
-                                        ps.setString(1, like);
-                                        ps.setString(2, like);
-                                },
+                return jdbcTemplate.query("CALL sp_search_products(?)",
+                                ps -> ps.setString(1, keyword),
                 (rs, rowNum) -> new FintechDtos.ProductSummaryResponse(
                         rs.getString("product_id"),
                         rs.getString("name"),
