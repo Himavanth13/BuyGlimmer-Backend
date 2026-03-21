@@ -13,6 +13,7 @@
     <groupId>com.buyglimmer</groupId>
     <artifactId>buyglimmer-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
     <name>buyglimmer-backend</name>
     <description>BuyGlimmer Spring Boot backend scaffold</description>
 
