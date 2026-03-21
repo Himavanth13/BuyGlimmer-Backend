@@ -291,7 +291,10 @@ public final class FintechDtos {
             @NotBlank String orderId,
             @NotBlank String courierName,
             @NotBlank String trackingNumber,
-            String estimatedDeliveryDate
+            String estimatedDeliveryDate,
+            String destinationPincode,
+            String serviceType,
+            String dispatchDate
     ) {
     }
 
