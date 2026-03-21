@@ -100,6 +100,17 @@ public final class FintechDtos {
     ) {
     }
 
+    public record InstantBuyRequest(
+            @NotBlank String customerId,
+            @NotBlank String addressId,
+            @NotBlank String variantId,
+            @NotNull @Min(1) Integer quantity,
+            @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal price,
+            String couponCode,
+            @NotBlank String paymentMethod
+    ) {
+    }
+
     public record OrderItemInput(
             @NotBlank String variantId,
             @NotNull @Min(1) Integer quantity,
@@ -245,9 +256,37 @@ public final class FintechDtos {
     ) {
     }
 
+    public record InvoiceByOrderRequest(
+            @NotBlank String orderId
+    ) {
+    }
+
     public record InvoiceEmailRequest(
             @NotBlank String invoiceId,
             @Email @NotBlank String recipientEmail
+    ) {
+    }
+
+    public record InvoiceLineItem(
+            String lineItemId,
+            String productId,
+            String productName,
+            Integer quantity,
+            BigDecimal unitPrice,
+            BigDecimal itemTotal,
+            BigDecimal discountAmount
+    ) {
+    }
+
+    public record InvoiceDetailResponse(
+            String invoiceId,
+            String orderId,
+            String invoiceNumber,
+            String invoiceDate,
+            BigDecimal totalAmount,
+            BigDecimal discountAmount,
+            String status,
+            List<InvoiceLineItem> lineItems
     ) {
     }
 

@@ -40,6 +40,14 @@ public class OrderProcedureController {
         return apiResponseFactory.success(request.requestId(), "Order created successfully", orderProcedureService.createOrder(request.data()));
     }
 
+    @PostMapping("/instant-buy")
+    public ApiWrapperResponse<FintechDtos.OrderSummaryResponse> instantBuy(
+            @Valid @RequestBody ApiWrapperRequest<FintechDtos.InstantBuyRequest> request) {
+        authService.validateToken(request.token());
+        logger.info("POST /api/v1/orders/instant-buy requestId={}", request.requestId());
+        return apiResponseFactory.success(request.requestId(), "Instant buy order created successfully", orderProcedureService.instantBuy(request.data()));
+    }
+
     @PostMapping("/list")
     public ApiWrapperResponse<List<FintechDtos.OrderSummaryResponse>> getOrders(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.OrderListRequest> request) {
