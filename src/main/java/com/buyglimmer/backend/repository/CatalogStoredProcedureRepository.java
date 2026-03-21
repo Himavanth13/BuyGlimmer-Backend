@@ -1,11 +1,13 @@
 package com.buyglimmer.backend.repository;
 
 import com.buyglimmer.backend.dto.CatalogDtos;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,21 +41,65 @@ public class CatalogStoredProcedureRepository {
     }
 
     public CatalogDtos.ProductResponse fetchProduct(String productId) {
-        List<BaseProduct> products = jdbcTemplate.query("select * from sp_fetch_product_by_id(?)",
-                ps -> ps.setString(1, productId),
-                (rs, rowNum) -> new BaseProduct(
-                        rs.getString("id"),
-                        rs.getString("name"),
-                        rs.getBigDecimal("price"),
-                        rs.getString("category"),
-                        rs.getString("description")
-                ));
+        try {
+            List<BaseProduct> products = jdbcTemplate.query("select * from sp_fetch_product_by_id(?)",
+                    ps -> ps.setString(1, productId),
+                    (rs, rowNum) -> new BaseProduct(
+                            rs.getString("id"),
+                            rs.getString("name"),
+                            rs.getBigDecimal("price"),
+                            rs.getString("category"),
+                            rs.getString("description")
+                    ));
 
-        if (products.isEmpty()) {
-            throw new NoSuchElementException("Product not found for id " + productId);
+            if (products.isEmpty()) {
+                throw new NoSuchElementException("Product not found for id " + productId);
+            }
+
+            return hydrate(products.get(0));
+        } catch (DataAccessException ex) {
+            List<BaseProduct> products = jdbcTemplate.query(
+                    """
+                    select p.id,
+                           p.name,
+                           coalesce(min(v.price), 0) as price,
+                           coalesce(max(c.name), '') as category,
+                           p.description
+                    from product p
+                    left join product_variant v on v.product_id = p.id
+                    left join product_category pc on pc.product_id = p.id
+                    left join category c on c.id = pc.category_id
+                    where p.id = ?
+                    group by p.id, p.name, p.description
+                    """,
+                    ps -> ps.setString(1, productId),
+                    (rs, rowNum) -> new BaseProduct(
+                            rs.getString("id"),
+                            rs.getString("name"),
+                            rs.getBigDecimal("price"),
+                            rs.getString("category"),
+                            rs.getString("description")
+                    )
+            );
+
+            if (products.isEmpty()) {
+                throw new NoSuchElementException("Product not found for id " + productId);
+            }
+
+            BaseProduct product = products.get(0);
+            return new CatalogDtos.ProductResponse(
+                    product.id(),
+                    product.name(),
+                    product.price(),
+                    product.category(),
+                    Collections.emptyList(),
+                    product.description(),
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    Collections.emptyMap(),
+                    Collections.emptyList()
+            );
         }
-
-        return hydrate(products.get(0));
     }
 
     private CatalogDtos.ProductResponse hydrate(BaseProduct baseProduct) {

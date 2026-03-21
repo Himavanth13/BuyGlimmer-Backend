@@ -27,8 +27,14 @@ public final class UserDtos {
     ) {
     }
 
+    public record WishlistFetchRequest(
+            String customerId
+    ) {
+    }
+
     public record WishlistToggleRequest(
-            @NotBlank String productId
+            @NotBlank String productId,
+            String customerId
     ) {
     }
 }

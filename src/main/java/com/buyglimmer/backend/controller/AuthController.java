@@ -32,4 +32,16 @@ public class AuthController {
     public ApiWrapperResponse<AuthDtos.AuthResponse> login(@Valid @RequestBody ApiWrapperRequest<AuthDtos.LoginRequest> request) {
         return apiResponseFactory.success(request.requestId(), "Login successful", authService.login(request.data()));
     }
+
+    @PostMapping("/forgot-password")
+    public ApiWrapperResponse<AuthDtos.ForgotPasswordResponse> forgotPassword(
+            @Valid @RequestBody ApiWrapperRequest<AuthDtos.ForgotPasswordRequest> request) {
+        return apiResponseFactory.success(request.requestId(), "Password reset token generated", authService.forgotPassword(request.data()));
+    }
+
+    @PostMapping("/reset-password")
+    public ApiWrapperResponse<AuthDtos.PasswordResetResponse> resetPassword(
+            @Valid @RequestBody ApiWrapperRequest<AuthDtos.ResetPasswordRequest> request) {
+        return apiResponseFactory.success(request.requestId(), "Password reset completed", authService.resetPassword(request.data()));
+    }
 }

@@ -72,9 +72,37 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"john@example.com\",\n    \"password\": \"StrongPass@123\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"{{registerEmail}}\",\n    \"password\": \"{{registerPassword}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"{{registerEmail}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/forgot-password"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"{{registerEmail}}\",\n    \"resetToken\": \"paste-reset-token-from-forgot-password\",\n    \"newPassword\": \"NewStrongPass@123\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/reset-password"
           }
         }
       ]
@@ -122,6 +150,39 @@
               "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"keyword\": \"shirt\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/products/search"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "List Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/wishlist/list"
+          }
+        },
+        {
+          "name": "Toggle Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"productId\": \"{{productId}}\",\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/wishlist/toggle"
           }
         }
       ]
@@ -331,7 +392,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"mobile\": \"9876543210\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"name\": \"{{registerName}}\",\n    \"email\": \"{{registerEmail}}\",\n    \"mobile\": \"{{registerPhone}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/user/update"
           }
@@ -350,7 +411,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\",\n    \"customerId\": \"{{customerId}}\",\n    \"billingEmail\": \"john@example.com\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\",\n    \"customerId\": \"{{customerId}}\",\n    \"billingEmail\": \"{{registerEmail}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/invoices/generate"
           }
@@ -378,7 +439,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"invoiceId\": \"{{invoiceId}}\",\n    \"recipientEmail\": \"john@example.com\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"invoiceId\": \"{{invoiceId}}\",\n    \"recipientEmail\": \"{{registerEmail}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/invoices/email"
           }
@@ -397,7 +458,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"toEmail\": \"john@example.com\",\n    \"subject\": \"Order Shipped\",\n    \"messageType\": \"DELIVERY\",\n    \"body\": \"Your order is on the way.\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"toEmail\": \"{{registerEmail}}\",\n    \"subject\": \"Order Shipped\",\n    \"messageType\": \"DELIVERY\",\n    \"body\": \"Your order is on the way.\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/notifications/email/send"
           }

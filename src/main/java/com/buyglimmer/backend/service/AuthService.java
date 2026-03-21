@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +25,7 @@ public class AuthService {
     private final UserService userService;
     private final UserStoredProcedureRepository userRepository;
     private final Set<String> activeTokens = ConcurrentHashMap.newKeySet();
+    private final Map<String, ResetTokenInfo> passwordResetTokens = new ConcurrentHashMap<>();
 
     public AuthService(BuyGlimmerProperties properties, UserService userService, UserStoredProcedureRepository userRepository) {
         this.properties = properties;
@@ -49,6 +52,38 @@ public class AuthService {
         String token = createToken();
         activeTokens.add(token);
         return new AuthDtos.AuthResponse(token, profile);
+    }
+
+    public AuthDtos.ForgotPasswordResponse forgotPassword(AuthDtos.ForgotPasswordRequest request) {
+        userRepository.fetchUserByEmail(request.email())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Account not found", java.util.List.of("Use a registered BuyGlimmer account.")));
+
+        String resetToken = "rst-" + UUID.randomUUID();
+        long expiresAtEpochSeconds = Instant.now().plusSeconds(15 * 60).getEpochSecond();
+        passwordResetTokens.put(resetToken, new ResetTokenInfo(request.email(), expiresAtEpochSeconds));
+        return new AuthDtos.ForgotPasswordResponse(resetToken, 15 * 60L);
+    }
+
+    public AuthDtos.PasswordResetResponse resetPassword(AuthDtos.ResetPasswordRequest request) {
+        ResetTokenInfo tokenInfo = passwordResetTokens.get(request.resetToken());
+        if (tokenInfo == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid reset token", java.util.List.of("Generate a new token using /api/v1/auth/forgot-password."));
+        }
+        if (tokenInfo.expiresAtEpochSeconds() < Instant.now().getEpochSecond()) {
+            passwordResetTokens.remove(request.resetToken());
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Reset token expired", java.util.List.of("Generate a new token using /api/v1/auth/forgot-password."));
+        }
+        if (!tokenInfo.email().equalsIgnoreCase(request.email())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Reset token does not match the provided email");
+        }
+
+        int updatedRows = userRepository.updatePasswordByEmail(request.email(), request.newPassword());
+        if (updatedRows <= 0) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "Account not found", java.util.List.of("Use a registered BuyGlimmer account."));
+        }
+
+        passwordResetTokens.remove(request.resetToken());
+        return new AuthDtos.PasswordResetResponse("Password reset successful");
     }
 
     public void requireAuthorization(String authorization) {
@@ -78,5 +113,11 @@ public class AuthService {
             return authorization.substring(7).trim();
         }
         return authorization.trim();
+    }
+
+    private record ResetTokenInfo(
+            String email,
+            long expiresAtEpochSeconds
+    ) {
     }
 }

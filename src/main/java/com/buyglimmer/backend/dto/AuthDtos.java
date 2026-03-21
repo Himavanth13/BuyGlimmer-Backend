@@ -22,6 +22,29 @@ public final class AuthDtos {
     ) {
     }
 
+    public record ForgotPasswordRequest(
+            @Email @NotBlank String email
+    ) {
+    }
+
+    public record ForgotPasswordResponse(
+            String resetToken,
+            long expiresInSeconds
+    ) {
+    }
+
+    public record ResetPasswordRequest(
+            @Email @NotBlank String email,
+            @NotBlank String resetToken,
+            @NotBlank String newPassword
+    ) {
+    }
+
+    public record PasswordResetResponse(
+            String message
+    ) {
+    }
+
     public record AuthResponse(
             String token,
             UserDtos.UserProfileResponse user

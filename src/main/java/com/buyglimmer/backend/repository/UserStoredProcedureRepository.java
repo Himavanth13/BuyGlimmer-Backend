@@ -78,6 +78,14 @@ public class UserStoredProcedureRepository {
         return fetchProfile(updatedUserId);
     }
 
+    public int updatePasswordByEmail(String email, String password) {
+        return jdbcTemplate.update(
+                "UPDATE customer SET password_hash = ? WHERE LOWER(email) = LOWER(?)",
+                password,
+                email
+        );
+    }
+
     public record StoredUser(
             String id,
             String name,
