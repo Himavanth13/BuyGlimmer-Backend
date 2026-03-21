@@ -5,6 +5,7 @@ import com.buyglimmer.backend.repository.OrderProcedureRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,12 +20,15 @@ public class OrderProcedureService {
         this.orderProcedureRepository = orderProcedureRepository;
     }
 
+    @Transactional
     public FintechDtos.OrderSummaryResponse createOrder(FintechDtos.OrderCreateRequest request) {
         logger.info("Creating order for customerId={}", request.customerId());
         FintechDtos.OrderSummaryResponse orderSummary = orderProcedureRepository.createOrder(request);
         for (FintechDtos.OrderItemInput item : request.items()) {
             orderProcedureRepository.addOrderItem(orderSummary.orderId(), item);
         }
+        int clearedItems = orderProcedureRepository.clearActiveCartForCustomer(request.customerId());
+        logger.info("Cleared {} cart items for customerId={} after orderId={}", clearedItems, request.customerId(), orderSummary.orderId());
         return orderProcedureRepository.getOrderSummary(orderSummary.orderId());
     }
 

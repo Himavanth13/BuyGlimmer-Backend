@@ -88,6 +88,22 @@ public class OrderProcedureRepository {
     );
     }
 
+    public int clearActiveCartForCustomer(String customerId) {
+        int removed = jdbcTemplate.update(
+            "DELETE ci FROM cart_item ci " +
+                "JOIN cart c ON c.id = ci.cart_id " +
+                "WHERE c.customer_id = ? AND LOWER(c.status) = 'active'",
+            customerId
+        );
+
+        jdbcTemplate.update(
+            "UPDATE cart SET status = 'ordered' WHERE customer_id = ? AND LOWER(status) = 'active'",
+            customerId
+        );
+
+        return removed;
+    }
+
     public List<FintechDtos.OrderSummaryResponse> getOrders(String customerId) {
     return jdbcTemplate.query("CALL sp_get_orders(?)",
         ps -> ps.setString(1, customerId),

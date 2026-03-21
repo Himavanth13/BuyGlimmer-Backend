@@ -4,6 +4,7 @@ import com.buyglimmer.backend.dto.FintechDtos;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSetMetaData;
 import java.util.List;
 
 @Repository
@@ -31,17 +32,20 @@ public class ProductProcedureRepository {
     public FintechDtos.ProductDetailResponse getProduct(String productId) {
         List<FintechDtos.ProductDetailResponse> rows = jdbcTemplate.query("CALL sp_get_product(?)",
                 ps -> ps.setString(1, productId),
-                (rs, rowNum) -> new FintechDtos.ProductDetailResponse(
-                        rs.getString("product_id"),
-                        rs.getString("name"),
-                        rs.getString("brand"),
-                        rs.getString("description"),
-                        rs.getBigDecimal("price"),
-                        rs.getBigDecimal("mrp"),
-                        rs.getInt("stock"),
-                                                rs.getString("sku"),
-                                                firstImage(rs.getString("images"))
-                ));
+                (rs, rowNum) -> {
+                        String imageValue = columnExists(rs, "image_url") ? rs.getString("image_url") : rs.getString("images");
+                        return new FintechDtos.ProductDetailResponse(
+                                rs.getString("product_id"),
+                                rs.getString("name"),
+                                rs.getString("brand"),
+                                rs.getString("description"),
+                                rs.getBigDecimal("price"),
+                                rs.getBigDecimal("mrp"),
+                                rs.getInt("stock"),
+                                rs.getString("sku"),
+                                firstImage(imageValue)
+                        );
+                });
 
                 if (rows.isEmpty()) {
                         throw new java.util.NoSuchElementException("Product not found");
@@ -77,4 +81,14 @@ public class ProductProcedureRepository {
                 }
                 return trimmed;
         }
+
+                private boolean columnExists(java.sql.ResultSet rs, String columnName) throws java.sql.SQLException {
+                        ResultSetMetaData metaData = rs.getMetaData();
+                        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                                if (columnName.equalsIgnoreCase(metaData.getColumnLabel(i))) {
+                                        return true;
+                                }
+                        }
+                        return false;
+                }
 }

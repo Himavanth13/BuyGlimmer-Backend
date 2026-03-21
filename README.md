@@ -82,6 +82,20 @@ mvn spring-boot:run
 
 Swagger UI will be available at `/swagger-ui.html`.
 
+## Pre-release checklist
+
+Run the pre-release gate script to verify critical schema-compatibility endpoints before smoke tests:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\pre_release_check.ps1
+```
+
+To run only compatibility probes (skip smoke):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\pre_release_check.ps1 -SkipSmoke
+```
+
 ## Notes
 
 The fintech API layer is implemented with strict `POST` endpoints, request/response wrappers, and JDBC `CallableStatement` stored procedure calls only.
