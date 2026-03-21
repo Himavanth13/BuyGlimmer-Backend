@@ -45,4 +45,11 @@ public class PaymentController {
         logger.info("POST /api/v1/payments/verify requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Payment verified successfully", paymentProcedureService.verifyPayment(request.data()));
     }
+
+    @PostMapping("/callback")
+    public ApiWrapperResponse<FintechDtos.PaymentResponse> paymentCallback(
+            @Valid @RequestBody ApiWrapperRequest<FintechDtos.PaymentCallbackRequest> request) {
+        logger.info("POST /api/v1/payments/callback requestId={}", request.requestId());
+        return apiResponseFactory.success(request.requestId(), "Payment callback processed successfully", paymentProcedureService.processCallback(request.data()));
+    }
 }

@@ -65,4 +65,14 @@ public class PaymentProcedureService {
         
         return paymentResponse;
     }
+
+    @Transactional
+    public FintechDtos.PaymentResponse processCallback(FintechDtos.PaymentCallbackRequest request) {
+        logger.info("Processing payment callback paymentId={} status={}", request.paymentId(), request.status());
+        return verifyPayment(new FintechDtos.PaymentVerifyRequest(
+                request.paymentId(),
+                request.gatewayTxnId(),
+                request.status()
+        ));
+    }
 }

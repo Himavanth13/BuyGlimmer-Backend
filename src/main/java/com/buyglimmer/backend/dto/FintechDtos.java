@@ -174,6 +174,13 @@ public final class FintechDtos {
     ) {
     }
 
+    public record PaymentCallbackRequest(
+            @NotBlank String paymentId,
+            @NotBlank String gatewayTxnId,
+            @NotBlank String status
+    ) {
+    }
+
     public record PaymentResponse(
             String paymentId,
             String orderId,

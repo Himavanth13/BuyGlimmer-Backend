@@ -363,6 +363,20 @@
             },
             "url": "{{baseUrl}}/api/v1/payments/verify"
           }
+        },
+        {
+          "name": "Payment Callback",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"paymentId\": \"{{paymentId}}\",\n    \"gatewayTxnId\": \"TXN-12345\",\n    \"status\": \"SUCCESS\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/payments/callback"
+          }
         }
       ]
     },
