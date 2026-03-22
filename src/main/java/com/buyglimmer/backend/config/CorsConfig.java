@@ -6,11 +6,12 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
-    @Value("${app.cors.allowed-origins:*}")
+    @Value("${app.cors.allowed-origins:https://uat.indumenti.co.in}")
     private String allowedOrigins;
 
     @Override
@@ -20,8 +21,22 @@ public class CorsConfig implements WebMvcConfigurer {
                 .filter(value -> !value.isBlank())
                 .toArray(String[]::new);
 
+        List<String> originList = Arrays.asList(origins);
+        boolean wildcardConfigured = originList.contains("*");
+
+        if (wildcardConfigured) {
+            registry.addMapping("/**")
+                    .allowedOriginPatterns("*")
+                    .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    // Browsers reject wildcard origin when credentials are allowed.
+                    .allowCredentials(false)
+                    .maxAge(3600);
+            return;
+        }
+
         registry.addMapping("/**")
-                .allowedOriginPatterns(origins)
+                .allowedOrigins(origins)
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
