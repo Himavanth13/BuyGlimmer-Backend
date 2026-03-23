@@ -264,6 +264,20 @@
             },
             "url": "{{baseUrl}}/api/v1/address/add"
           }
+        },
+        {
+          "name": "List Addresses",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/address/list"
+          }
         }
       ]
     },
@@ -329,6 +343,25 @@
               "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/orders/detail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Update Payment Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"orderId\": \"{{orderId}}\",\n    \"status\": \"SUCCESS\",\n    \"gatewayTxnId\": \"TXN-POSTMAN-001\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/payments/update-status"
           }
         }
       ]
