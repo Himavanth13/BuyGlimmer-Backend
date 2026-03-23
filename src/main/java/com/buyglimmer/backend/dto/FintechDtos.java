@@ -16,9 +16,7 @@ public final class FintechDtos {
     private FintechDtos() {
     }
 
-    public record ProductListRequest(
-            String category
-    ) {
+    public record ProductListRequest() {
     }
 
     public record ProductDetailRequest(
@@ -340,6 +338,7 @@ public final class FintechDtos {
     }
 
     public record DeliveryCreateRequest(
+            @NotBlank String customerId,
             @NotBlank String orderId,
             @NotBlank String courierName,
             @NotBlank String trackingNumber,
@@ -351,11 +350,13 @@ public final class FintechDtos {
     }
 
     public record DeliveryDetailRequest(
+            @NotBlank String customerId,
             @NotBlank String deliveryId
     ) {
     }
 
     public record DeliveryStatusUpdateRequest(
+            @NotBlank String customerId,
             @NotBlank String deliveryId,
             @NotBlank String status,
             String currentLocation,
@@ -384,6 +385,7 @@ public final class FintechDtos {
     }
 
     public record ReturnDetailRequest(
+            @NotBlank String customerId,
             @NotBlank String returnId
     ) {
     }
@@ -404,6 +406,7 @@ public final class FintechDtos {
     }
 
     public record RefundCreateRequest(
+            @NotBlank String customerId,
             @NotBlank String returnId,
             @NotBlank String paymentId,
             @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal amount,
@@ -412,6 +415,7 @@ public final class FintechDtos {
     }
 
     public record RefundDetailRequest(
+            @NotBlank String customerId,
             @NotBlank String refundId
     ) {
     }

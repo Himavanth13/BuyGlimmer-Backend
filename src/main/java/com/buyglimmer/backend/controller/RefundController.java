@@ -35,7 +35,7 @@ public class RefundController {
     @PostMapping("/create")
     public ApiWrapperResponse<FintechDtos.RefundResponse> create(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.RefundCreateRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/refunds/create requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Refund initiated successfully", refundService.createRefund(request.data()));
     }
@@ -43,7 +43,7 @@ public class RefundController {
     @PostMapping("/detail")
     public ApiWrapperResponse<FintechDtos.RefundResponse> detail(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.RefundDetailRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/refunds/detail requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Refund details fetched successfully", refundService.getRefund(request.data()));
     }
@@ -51,7 +51,7 @@ public class RefundController {
     @PostMapping("/list")
     public ApiWrapperResponse<List<FintechDtos.RefundResponse>> list(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.RefundListRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/refunds/list requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Refunds fetched successfully", refundService.listRefunds(request.data()));
     }

@@ -33,7 +33,7 @@ public class AddressController {
     @PostMapping("/add")
     public ApiWrapperResponse<FintechDtos.AddressResponse> addAddress(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.AddressAddRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/address/add requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Address added successfully", userProcedureService.addAddress(request.data()));
     }

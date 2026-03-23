@@ -35,7 +35,7 @@ public class EmailNotificationController {
     @PostMapping("/send")
     public ApiWrapperResponse<FintechDtos.EmailNotificationResponse> send(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.EmailNotificationSendRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/notifications/email/send requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Email notification sent successfully", emailNotificationService.send(request.data()));
     }
@@ -43,7 +43,7 @@ public class EmailNotificationController {
     @PostMapping("/history")
     public ApiWrapperResponse<List<FintechDtos.EmailNotificationResponse>> history(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.EmailNotificationHistoryRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/notifications/email/history requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Email notification history fetched successfully", emailNotificationService.history(request.data()));
     }

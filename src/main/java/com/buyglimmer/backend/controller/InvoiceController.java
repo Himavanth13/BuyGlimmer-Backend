@@ -33,32 +33,32 @@ public class InvoiceController {
     @PostMapping("/generate")
     public ApiWrapperResponse<FintechDtos.InvoiceDetailResponse> generate(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.InvoiceGenerateRequest> request) {
-        authService.validateToken(request.token());
+        String authenticatedCustomerId = authService.getAuthenticatedCustomerId(request.token());
         logger.info("POST /api/v1/invoices/generate requestId={}", request.requestId());
-        return apiResponseFactory.success(request.requestId(), "Invoice generated successfully", invoiceService.generateInvoice(request.data()));
+        return apiResponseFactory.success(request.requestId(), "Invoice generated successfully", invoiceService.generateInvoiceForCustomer(authenticatedCustomerId, request.data()));
     }
 
     @PostMapping("/detail")
     public ApiWrapperResponse<FintechDtos.InvoiceDetailResponse> detail(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.InvoiceDetailRequest> request) {
-        authService.validateToken(request.token());
+        String authenticatedCustomerId = authService.getAuthenticatedCustomerId(request.token());
         logger.info("POST /api/v1/invoices/detail requestId={}", request.requestId());
-        return apiResponseFactory.success(request.requestId(), "Invoice fetched successfully", invoiceService.getInvoice(request.data()));
+        return apiResponseFactory.success(request.requestId(), "Invoice fetched successfully", invoiceService.getInvoiceForCustomer(authenticatedCustomerId, request.data()));
     }
 
     @PostMapping("/by-order")
     public ApiWrapperResponse<FintechDtos.InvoiceDetailResponse> getByOrder(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.InvoiceByOrderRequest> request) {
-        authService.validateToken(request.token());
+        String authenticatedCustomerId = authService.getAuthenticatedCustomerId(request.token());
         logger.info("POST /api/v1/invoices/by-order requestId={}", request.requestId());
-        return apiResponseFactory.success(request.requestId(), "Invoice fetched by order successfully", invoiceService.getInvoiceByOrder(request.data()));
+        return apiResponseFactory.success(request.requestId(), "Invoice fetched by order successfully", invoiceService.getInvoiceByOrderForCustomer(authenticatedCustomerId, request.data()));
     }
 
     @PostMapping("/email")
     public ApiWrapperResponse<FintechDtos.EmailNotificationResponse> email(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.InvoiceEmailRequest> request) {
-        authService.validateToken(request.token());
+        String authenticatedCustomerId = authService.getAuthenticatedCustomerId(request.token());
         logger.info("POST /api/v1/invoices/email requestId={}", request.requestId());
-        return apiResponseFactory.success(request.requestId(), "Invoice email sent successfully", invoiceService.emailInvoice(request.data()));
+        return apiResponseFactory.success(request.requestId(), "Invoice email sent successfully", invoiceService.emailInvoiceForCustomer(authenticatedCustomerId, request.data()));
     }
 }

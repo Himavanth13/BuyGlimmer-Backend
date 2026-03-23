@@ -36,24 +36,34 @@ public class WishlistController {
     @PostMapping("/list")
     public ApiWrapperResponse<List<CatalogDtos.ProductResponse>> listWishlist(
             @Valid @RequestBody ApiWrapperRequest<UserDtos.WishlistFetchRequest> request) {
-        authService.validateToken(request.token());
+        String authenticatedCustomerId = authService.getAuthenticatedCustomerId(request.token());
+        if (request.data().customerId() != null && !request.data().customerId().isBlank()) {
+            authService.assertCustomerOwnership(request.token(), request.data().customerId());
+        }
         logger.info("POST /api/v1/wishlist/list requestId={}", request.requestId());
         return apiResponseFactory.success(
                 request.requestId(),
                 "Wishlist fetched successfully",
-                wishlistService.fetchWishlist(request.data().customerId())
+            wishlistService.fetchWishlist(authenticatedCustomerId)
         );
     }
 
     @PostMapping("/toggle")
     public ApiWrapperResponse<List<CatalogDtos.ProductResponse>> toggleWishlist(
             @Valid @RequestBody ApiWrapperRequest<UserDtos.WishlistToggleRequest> request) {
-        authService.validateToken(request.token());
+        String authenticatedCustomerId = authService.getAuthenticatedCustomerId(request.token());
+        if (request.data().customerId() != null && !request.data().customerId().isBlank()) {
+            authService.assertCustomerOwnership(request.token(), request.data().customerId());
+        }
         logger.info("POST /api/v1/wishlist/toggle requestId={}", request.requestId());
+        UserDtos.WishlistToggleRequest ownedRequest = new UserDtos.WishlistToggleRequest(
+            request.data().productId(),
+            authenticatedCustomerId
+        );
         return apiResponseFactory.success(
                 request.requestId(),
                 "Wishlist updated successfully",
-                wishlistService.toggleProduct(request.data())
+            wishlistService.toggleProduct(ownedRequest)
         );
     }
 }

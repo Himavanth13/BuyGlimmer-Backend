@@ -33,7 +33,7 @@ public class CouponController {
     @PostMapping("/validate")
     public ApiWrapperResponse<FintechDtos.CouponValidationResponse> validateCoupon(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.CouponValidateRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/coupons/validate requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Coupon validation completed", couponProcedureService.validateCoupon(request.data()));
     }

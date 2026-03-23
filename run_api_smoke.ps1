@@ -24,7 +24,7 @@ function CallStatus($name,$path,$data){
 
 $lines = @()
 $lines += "Register: $($reg.status) - $($reg.message)"
-$lines += CallStatus 'ProductsList' '/api/v1/products/list' @{category='men'}
+$lines += CallStatus 'ProductsList' '/api/v1/products/list' @{}
 $lines += CallStatus 'ProductsDetail' '/api/v1/products/detail' @{productId=$productId}
 $lines += CallStatus 'ProductsSearch' '/api/v1/products/search' @{keyword='shirt'}
 $lines += CallStatus 'CartAdd' '/api/v1/cart/add' @{customerId=$customerId;productId=$productId;variantId=$variantId;quantity=1}

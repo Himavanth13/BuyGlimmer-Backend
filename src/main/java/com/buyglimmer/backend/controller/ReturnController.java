@@ -35,7 +35,7 @@ public class ReturnController {
     @PostMapping("/create")
     public ApiWrapperResponse<FintechDtos.ReturnResponse> create(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.ReturnCreateRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/returns/create requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Return request created successfully", returnService.createReturn(request.data()));
     }
@@ -43,7 +43,7 @@ public class ReturnController {
     @PostMapping("/detail")
     public ApiWrapperResponse<FintechDtos.ReturnResponse> detail(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.ReturnDetailRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/returns/detail requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Return details fetched successfully", returnService.getReturn(request.data()));
     }
@@ -51,7 +51,7 @@ public class ReturnController {
     @PostMapping("/list")
     public ApiWrapperResponse<List<FintechDtos.ReturnResponse>> list(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.ReturnListRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/returns/list requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Returns fetched successfully", returnService.listReturns(request.data()));
     }

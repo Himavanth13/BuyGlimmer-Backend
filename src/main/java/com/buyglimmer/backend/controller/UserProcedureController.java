@@ -33,7 +33,7 @@ public class UserProcedureController {
     @PostMapping("/profile")
     public ApiWrapperResponse<FintechDtos.UserProfileResponse> profile(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.UserProfileRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/user/profile requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Profile fetched successfully", userProcedureService.getProfile(request.data()));
     }
@@ -41,7 +41,7 @@ public class UserProcedureController {
     @PostMapping("/update")
     public ApiWrapperResponse<FintechDtos.UserProfileResponse> update(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.UserUpdateRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/user/update requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Profile updated successfully", userProcedureService.updateProfile(request.data()));
     }

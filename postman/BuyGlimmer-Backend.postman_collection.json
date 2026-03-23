@@ -119,7 +119,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"category\": \"men\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {}\n}"
             },
             "url": "{{baseUrl}}/api/v1/products/list"
           }
@@ -458,7 +458,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\",\n    \"courierName\": \"BlueDart\",\n    \"trackingNumber\": \"TRK-123456\",\n    \"estimatedDeliveryDate\": \"2026-03-25\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"orderId\": \"{{orderId}}\",\n    \"courierName\": \"BlueDart\",\n    \"trackingNumber\": \"TRK-123456\",\n    \"estimatedDeliveryDate\": \"2026-03-25\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/delivery/create"
           }
@@ -472,7 +472,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"deliveryId\": \"{{deliveryId}}\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"deliveryId\": \"{{deliveryId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/delivery/detail"
           }
@@ -486,7 +486,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"deliveryId\": \"{{deliveryId}}\",\n    \"status\": \"IN_TRANSIT\",\n    \"currentLocation\": \"Hyderabad Hub\",\n    \"remarks\": \"Package scanned at hub\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"deliveryId\": \"{{deliveryId}}\",\n    \"status\": \"IN_TRANSIT\",\n    \"currentLocation\": \"Hyderabad Hub\",\n    \"remarks\": \"Package scanned at hub\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/delivery/update-status"
           }
@@ -519,7 +519,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"returnId\": \"{{returnId}}\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"returnId\": \"{{returnId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/returns/detail"
           }
@@ -552,7 +552,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"returnId\": \"{{returnId}}\",\n    \"paymentId\": \"{{paymentId}}\",\n    \"amount\": 999.00,\n    \"reason\": \"RETURN_APPROVED\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"returnId\": \"{{returnId}}\",\n    \"paymentId\": \"{{paymentId}}\",\n    \"amount\": 999.00,\n    \"reason\": \"RETURN_APPROVED\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/refunds/create"
           }
@@ -566,7 +566,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"refundId\": \"{{refundId}}\"\n  }\n}"
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"refundId\": \"{{refundId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/refunds/detail"
           }

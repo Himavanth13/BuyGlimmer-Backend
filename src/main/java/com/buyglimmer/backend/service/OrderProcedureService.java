@@ -1,9 +1,11 @@
 package com.buyglimmer.backend.service;
 
 import com.buyglimmer.backend.dto.FintechDtos;
+import com.buyglimmer.backend.exception.ApiException;
 import com.buyglimmer.backend.repository.OrderProcedureRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,5 +86,13 @@ public class OrderProcedureService {
                 summary.createdAt(),
                 items
         );
+    }
+
+    public FintechDtos.OrderDetailResponse getOrderDetailForCustomer(String authenticatedCustomerId, FintechDtos.OrderDetailRequest request) {
+        FintechDtos.OrderDetailResponse detail = getOrderDetail(request);
+        if (!authenticatedCustomerId.equals(detail.customerId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Access denied for requested order");
+        }
+        return detail;
     }
 }

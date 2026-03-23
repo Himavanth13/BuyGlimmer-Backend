@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +28,7 @@ public class AuthService {
     private final UserStoredProcedureRepository userRepository;
     private final CartProcedureRepository cartProcedureRepository;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final Set<String> activeTokens = ConcurrentHashMap.newKeySet();
+    private final Map<String, String> tokenOwners = new ConcurrentHashMap<>();
     private final Map<String, ResetTokenInfo> passwordResetTokens = new ConcurrentHashMap<>();
 
     public AuthService(BuyGlimmerProperties properties, UserService userService, UserStoredProcedureRepository userRepository,
@@ -54,7 +53,7 @@ public class AuthService {
         }
 
         String token = createToken();
-        activeTokens.add(token);
+        tokenOwners.put(token, storedUser.id());
         UserDtos.UserProfileResponse profile = userRepository.fetchProfile(storedUser.id());
         return new AuthDtos.AuthResponse(token, profile);
     }
@@ -63,7 +62,7 @@ public class AuthService {
         String passwordHash = passwordEncoder.encode(request.password());
         UserDtos.UserProfileResponse profile = userService.register(request.name(), request.email(), passwordHash, request.phone());
         String token = createToken();
-        activeTokens.add(token);
+        tokenOwners.put(token, profile.id());
         return new AuthDtos.AuthResponse(token, profile);
     }
 
@@ -109,9 +108,28 @@ public class AuthService {
         if (token == null || token.isBlank()) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Missing authorization token", java.util.List.of("Authenticate with /api/v1/auth/login or /api/v1/auth/register first."));
         }
-        if (!activeTokens.contains(token)) {
+        if (!tokenOwners.containsKey(token)) {
             logger.warn("Rejected token validation for inactive token");
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid or missing authorization token", java.util.List.of("Authenticate with /api/v1/auth/login or /api/v1/auth/register first."));
+        }
+    }
+
+    public String getAuthenticatedCustomerId(String token) {
+        validateToken(token);
+        String customerId = tokenOwners.get(token);
+        if (customerId == null || customerId.isBlank()) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid or missing authorization token", java.util.List.of("Authenticate with /api/v1/auth/login or /api/v1/auth/register first."));
+        }
+        return customerId;
+    }
+
+    public void assertCustomerOwnership(String token, String customerId) {
+        if (customerId == null || customerId.isBlank()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "customerId is required");
+        }
+        String authenticatedCustomerId = getAuthenticatedCustomerId(token);
+        if (!authenticatedCustomerId.equals(customerId)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Access denied for requested customerId");
         }
     }
 

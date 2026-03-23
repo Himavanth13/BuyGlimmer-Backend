@@ -35,7 +35,7 @@ public class OrderProcedureController {
     @PostMapping("/create")
     public ApiWrapperResponse<FintechDtos.OrderSummaryResponse> createOrder(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.OrderCreateRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/orders/create requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Order created successfully", orderProcedureService.createOrder(request.data()));
     }
@@ -43,7 +43,7 @@ public class OrderProcedureController {
     @PostMapping("/instant-buy")
     public ApiWrapperResponse<FintechDtos.OrderSummaryResponse> instantBuy(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.InstantBuyRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/orders/instant-buy requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Instant buy order created successfully", orderProcedureService.instantBuy(request.data()));
     }
@@ -51,7 +51,7 @@ public class OrderProcedureController {
     @PostMapping("/list")
     public ApiWrapperResponse<List<FintechDtos.OrderSummaryResponse>> getOrders(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.OrderListRequest> request) {
-        authService.validateToken(request.token());
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/orders/list requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Orders fetched successfully", orderProcedureService.getOrders(request.data()));
     }
@@ -59,8 +59,8 @@ public class OrderProcedureController {
     @PostMapping("/detail")
     public ApiWrapperResponse<FintechDtos.OrderDetailResponse> getOrderDetail(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.OrderDetailRequest> request) {
-        authService.validateToken(request.token());
+        String authenticatedCustomerId = authService.getAuthenticatedCustomerId(request.token());
         logger.info("POST /api/v1/orders/detail requestId={}", request.requestId());
-        return apiResponseFactory.success(request.requestId(), "Order detail fetched successfully", orderProcedureService.getOrderDetail(request.data()));
+        return apiResponseFactory.success(request.requestId(), "Order detail fetched successfully", orderProcedureService.getOrderDetailForCustomer(authenticatedCustomerId, request.data()));
     }
 }

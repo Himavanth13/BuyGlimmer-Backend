@@ -1,9 +1,11 @@
 package com.buyglimmer.backend.service;
 
 import com.buyglimmer.backend.dto.FintechDtos;
+import com.buyglimmer.backend.exception.ApiException;
 import com.buyglimmer.backend.repository.InvoiceProcedureRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,15 @@ public class InvoiceService {
     public InvoiceService(InvoiceProcedureRepository invoiceProcedureRepository, OrderProcedureService orderProcedureService) {
         this.invoiceProcedureRepository = invoiceProcedureRepository;
         this.orderProcedureService = orderProcedureService;
+    }
+
+    @Transactional
+    public FintechDtos.InvoiceDetailResponse generateInvoiceForCustomer(String authenticatedCustomerId, FintechDtos.InvoiceGenerateRequest request) {
+        if (!authenticatedCustomerId.equals(request.customerId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Access denied for requested customerId");
+        }
+        assertOrderOwnership(authenticatedCustomerId, request.orderId());
+        return generateInvoice(request);
     }
 
     @Transactional
@@ -103,6 +114,12 @@ public class InvoiceService {
         return invoice;
     }
 
+    public FintechDtos.InvoiceDetailResponse getInvoiceForCustomer(String authenticatedCustomerId, FintechDtos.InvoiceDetailRequest request) {
+        FintechDtos.InvoiceDetailResponse invoice = getInvoice(request);
+        assertOrderOwnership(authenticatedCustomerId, invoice.orderId());
+        return invoice;
+    }
+
     public FintechDtos.InvoiceDetailResponse getInvoiceByOrder(FintechDtos.InvoiceByOrderRequest request) {
         logger.info("Fetching invoice by orderId={}", request.orderId());
         FintechDtos.InvoiceDetailResponse invoice = invoiceProcedureRepository.getInvoiceByOrderId(request.orderId());
@@ -132,6 +149,12 @@ public class InvoiceService {
         return invoice;
     }
 
+    public FintechDtos.InvoiceDetailResponse getInvoiceByOrderForCustomer(String authenticatedCustomerId, FintechDtos.InvoiceByOrderRequest request) {
+        FintechDtos.InvoiceDetailResponse invoice = getInvoiceByOrder(request);
+        assertOrderOwnership(authenticatedCustomerId, invoice.orderId());
+        return invoice;
+    }
+
     public FintechDtos.EmailNotificationResponse emailInvoice(FintechDtos.InvoiceEmailRequest request) {
         logger.info("Sending invoice email invoiceId={} to={}", request.invoiceId(), request.recipientEmail());
 
@@ -152,6 +175,22 @@ public class InvoiceService {
                 "SENT",
                 OffsetDateTime.now().toString()
         );
+    }
+
+    public FintechDtos.EmailNotificationResponse emailInvoiceForCustomer(String authenticatedCustomerId, FintechDtos.InvoiceEmailRequest request) {
+        FintechDtos.InvoiceDetailResponse invoice = invoiceProcedureRepository.getInvoiceById(request.invoiceId());
+        if (invoice == null) {
+            throw new IllegalArgumentException("Invoice not found: " + request.invoiceId());
+        }
+        assertOrderOwnership(authenticatedCustomerId, invoice.orderId());
+        return emailInvoice(request);
+    }
+
+    private void assertOrderOwnership(String authenticatedCustomerId, String orderId) {
+        FintechDtos.OrderDetailResponse orderDetail = orderProcedureService.getOrderDetail(new FintechDtos.OrderDetailRequest(orderId));
+        if (!authenticatedCustomerId.equals(orderDetail.customerId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Access denied for requested resource");
+        }
     }
 
     private String generateInvoiceNumber() {

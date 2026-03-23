@@ -37,7 +37,7 @@ $token=$reg.Data.token
 $rows+=CallApi 'AuthLogin' '/api/v1/auth/login' '' @{email=$email;password='StrongPass@123'}
 
 # 2) Product catalog
-$rows+=CallApi 'ProductsList' '/api/v1/products/list' $token @{category='men'}
+$rows+=CallApi 'ProductsList' '/api/v1/products/list' $token @{}
 $rows+=CallApi 'ProductsDetail' '/api/v1/products/detail' $token @{productId=$productId}
 $rows+=CallApi 'ProductsSearch' '/api/v1/products/search' $token @{keyword='shirt'}
 
