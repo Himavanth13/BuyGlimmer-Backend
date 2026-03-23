@@ -55,23 +55,16 @@ public class PaymentStatusRepository {
     private void synchronizePaidState(String orderId) {
         try {
             jdbcTemplate.update(
-                    "UPDATE orders SET status = 'paid', payment_status = 'paid' WHERE id = ?",
+                "UPDATE orders SET status = 'paid' WHERE id = ?",
                     orderId
             );
             jdbcTemplate.update(
-                    "UPDATE payment SET status = 'paid' WHERE order_id = ?",
+                "UPDATE payment p JOIN orders o ON o.id = p.order_id " +
+                    "SET p.status = o.payment_status WHERE p.order_id = ?",
                     orderId
             );
         } catch (DataAccessException ex) {
-            logger.warn("Paid-state synchronization failed for orderId={}. Falling back to success status.", orderId, ex);
-            jdbcTemplate.update(
-                    "UPDATE orders SET status = 'success', payment_status = 'success' WHERE id = ?",
-                    orderId
-            );
-            jdbcTemplate.update(
-                    "UPDATE payment SET status = 'success' WHERE order_id = ?",
-                    orderId
-            );
+            logger.warn("Paid-state synchronization failed for orderId={}", orderId, ex);
         }
     }
 }
