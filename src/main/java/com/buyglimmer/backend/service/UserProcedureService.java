@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserProcedureService {
 
@@ -30,5 +32,10 @@ public class UserProcedureService {
     public FintechDtos.AddressResponse addAddress(FintechDtos.AddressAddRequest request) {
         logger.info("Adding address for customerId={}", request.customerId());
         return userProcedureRepository.addAddress(request);
+    }
+
+    public List<FintechDtos.AddressResponse> listAddresses(FintechDtos.AddressListRequest request) {
+        logger.info("Listing addresses for customerId={}", request.customerId());
+        return userProcedureRepository.listAddresses(request.customerId());
     }
 }

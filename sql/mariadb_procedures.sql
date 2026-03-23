@@ -378,6 +378,28 @@ BEGIN
   WHERE id = p_payment_id;
 END $$
 
+DROP PROCEDURE IF EXISTS sp_update_order_payment_status $$
+CREATE PROCEDURE sp_update_order_payment_status(
+  IN p_order_id VARCHAR(36),
+  IN p_status VARCHAR(20),
+  IN p_gateway_txn_id VARCHAR(200)
+)
+BEGIN
+  UPDATE orders
+  SET payment_status = p_status
+  WHERE id = p_order_id;
+
+  UPDATE payment
+  SET status = p_status,
+      gateway_txn_id = IFNULL(p_gateway_txn_id, gateway_txn_id)
+  WHERE order_id = p_order_id;
+
+  SELECT id AS order_id,
+         payment_status
+  FROM orders
+  WHERE id = p_order_id;
+END $$
+
 DROP PROCEDURE IF EXISTS sp_get_profile $$
 CREATE PROCEDURE sp_get_profile(IN p_customer_id VARCHAR(36))
 BEGIN
@@ -439,6 +461,22 @@ BEGIN
          is_default
   FROM address
   WHERE id = v_address_id;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_get_addresses $$
+CREATE PROCEDURE sp_get_addresses(IN p_customer_id VARCHAR(36))
+BEGIN
+  SELECT id AS address_id,
+         customer_id,
+         type,
+         address_line,
+         city,
+         state,
+         pincode,
+         is_default
+  FROM address
+  WHERE customer_id = p_customer_id
+  ORDER BY is_default DESC, id DESC;
 END $$
 
 DROP PROCEDURE IF EXISTS sp_validate_coupon $$

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/address")
 public class AddressController {
@@ -36,5 +38,13 @@ public class AddressController {
         authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/address/add requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Address added successfully", userProcedureService.addAddress(request.data()));
+    }
+
+    @PostMapping("/list")
+    public ApiWrapperResponse<List<FintechDtos.AddressResponse>> listAddress(
+            @Valid @RequestBody ApiWrapperRequest<FintechDtos.AddressListRequest> request) {
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
+        logger.info("POST /api/v1/address/list requestId={}", request.requestId());
+        return apiResponseFactory.success(request.requestId(), "Address list fetched successfully", userProcedureService.listAddresses(request.data()));
     }
 }

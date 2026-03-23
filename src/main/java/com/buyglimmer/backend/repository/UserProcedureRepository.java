@@ -80,4 +80,19 @@ public class UserProcedureRepository {
         }
         return rows.get(0);
     }
+
+    public List<FintechDtos.AddressResponse> listAddresses(String customerId) {
+        return jdbcTemplate.query("CALL sp_get_addresses(?)",
+                ps -> ps.setString(1, customerId),
+                (rs, rowNum) -> new FintechDtos.AddressResponse(
+                        rs.getString("address_id"),
+                        rs.getString("customer_id"),
+                        rs.getString("type"),
+                        rs.getString("address_line"),
+                        rs.getString("city"),
+                        rs.getString("state"),
+                        rs.getString("pincode"),
+                        rs.getBoolean("is_default")
+                ));
+    }
 }

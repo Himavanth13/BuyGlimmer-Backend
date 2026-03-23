@@ -195,6 +195,20 @@ public final class FintechDtos {
     ) {
     }
 
+    public record PaymentStatusUpdateRequest(
+            @NotBlank String customerId,
+            @NotBlank String orderId,
+            @NotBlank String status,
+            String gatewayTxnId
+    ) {
+    }
+
+    public record PaymentStatusUpdateResponse(
+            String orderId,
+            String paymentStatus
+    ) {
+    }
+
     public record UserProfileRequest(
             @NotBlank String customerId
     ) {
@@ -226,6 +240,11 @@ public final class FintechDtos {
             @NotBlank String state,
             @NotBlank String pincode,
             Boolean isDefault
+    ) {
+    }
+
+    public record AddressListRequest(
+            @NotBlank String customerId
     ) {
     }
 
