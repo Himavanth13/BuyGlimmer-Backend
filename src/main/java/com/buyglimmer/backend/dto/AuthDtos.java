@@ -10,7 +10,8 @@ public final class AuthDtos {
 
     public record LoginRequest(
             @Email @NotBlank String email,
-            @NotBlank String password
+            @NotBlank String password,
+            String guestId
     ) {
     }
 

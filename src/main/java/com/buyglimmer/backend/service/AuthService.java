@@ -4,10 +4,13 @@ import com.buyglimmer.backend.BuyGlimmerProperties;
 import com.buyglimmer.backend.dto.AuthDtos;
 import com.buyglimmer.backend.dto.UserDtos;
 import com.buyglimmer.backend.exception.ApiException;
+import com.buyglimmer.backend.repository.CartProcedureRepository;
 import com.buyglimmer.backend.repository.UserStoredProcedureRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -24,21 +27,30 @@ public class AuthService {
     private final BuyGlimmerProperties properties;
     private final UserService userService;
     private final UserStoredProcedureRepository userRepository;
+    private final CartProcedureRepository cartProcedureRepository;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Set<String> activeTokens = ConcurrentHashMap.newKeySet();
     private final Map<String, ResetTokenInfo> passwordResetTokens = new ConcurrentHashMap<>();
 
-    public AuthService(BuyGlimmerProperties properties, UserService userService, UserStoredProcedureRepository userRepository) {
+    public AuthService(BuyGlimmerProperties properties, UserService userService, UserStoredProcedureRepository userRepository,
+                       CartProcedureRepository cartProcedureRepository) {
         this.properties = properties;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.cartProcedureRepository = cartProcedureRepository;
     }
 
     public AuthDtos.AuthResponse login(AuthDtos.LoginRequest request) {
         UserStoredProcedureRepository.StoredUser storedUser = userRepository.fetchUserByEmail(request.email())
                 .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Invalid login credentials", java.util.List.of("Use a registered BuyGlimmer account.")));
 
-        if (storedUser.password() == null || !storedUser.password().equals(request.password())) {
+        if (storedUser.password() == null || !passwordEncoder.matches(request.password(), storedUser.password())) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid login credentials", java.util.List.of("Use the registered BuyGlimmer email to access the demo session."));
+        }
+
+        if (request.guestId() != null && !request.guestId().isBlank()) {
+            int mergedItems = cartProcedureRepository.mergeGuestCartIntoCustomer(request.guestId(), storedUser.id());
+            logger.info("Merged {} guest cart items guestId={} into customerId={}", mergedItems, request.guestId(), storedUser.id());
         }
 
         String token = createToken();
@@ -48,7 +60,8 @@ public class AuthService {
     }
 
     public AuthDtos.AuthResponse register(AuthDtos.RegisterRequest request) {
-        UserDtos.UserProfileResponse profile = userService.register(request.name(), request.email(), request.password(), request.phone());
+        String passwordHash = passwordEncoder.encode(request.password());
+        UserDtos.UserProfileResponse profile = userService.register(request.name(), request.email(), passwordHash, request.phone());
         String token = createToken();
         activeTokens.add(token);
         return new AuthDtos.AuthResponse(token, profile);
@@ -77,7 +90,8 @@ public class AuthService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Reset token does not match the provided email");
         }
 
-        int updatedRows = userRepository.updatePasswordByEmail(request.email(), request.newPassword());
+        String passwordHash = passwordEncoder.encode(request.newPassword());
+        int updatedRows = userRepository.updatePasswordByEmail(request.email(), passwordHash);
         if (updatedRows <= 0) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Account not found", java.util.List.of("Use a registered BuyGlimmer account."));
         }

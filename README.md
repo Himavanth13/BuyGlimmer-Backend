@@ -46,11 +46,6 @@ Spring Boot 3 backend scaffold for the BuyGlimmer storefront.
 - `POST /api/v1/orders/list` -> `sp_get_orders`
 - `POST /api/v1/orders/detail` -> `sp_get_order_detail`
 
-### Payments
-
-- `POST /api/v1/payments/create` -> `sp_create_payment`
-- `POST /api/v1/payments/verify` -> `sp_verify_payment`
-
 ### User
 
 - `POST /api/v1/user/profile` -> `sp_get_profile`

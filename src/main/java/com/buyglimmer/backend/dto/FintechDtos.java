@@ -56,7 +56,8 @@ public final class FintechDtos {
     }
 
     public record CartAddRequest(
-            @NotBlank String customerId,
+            String customerId,
+            String guestId,
             @NotBlank String productId,
             String variantId,
             @NotNull @Min(1) Integer quantity
@@ -64,17 +65,22 @@ public final class FintechDtos {
     }
 
     public record CartGetRequest(
-            @NotBlank String customerId
+            String customerId,
+            String guestId
     ) {
     }
 
     public record CartUpdateRequest(
+            String customerId,
+            String guestId,
             @NotBlank String cartItemId,
             @NotNull @Min(1) Integer quantity
     ) {
     }
 
     public record CartRemoveRequest(
+            String customerId,
+            String guestId,
             @NotBlank String cartItemId
     ) {
     }

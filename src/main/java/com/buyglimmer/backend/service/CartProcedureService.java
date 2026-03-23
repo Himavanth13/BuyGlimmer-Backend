@@ -22,28 +22,42 @@ public class CartProcedureService {
     }
 
     public FintechDtos.CartItemResponse addToCart(FintechDtos.CartAddRequest request) {
-        logger.info("Adding item to cart for customerId={}", request.customerId());
-        return cartProcedureRepository.addToCart(request);
+        String actorId = resolveActorId(request.customerId(), request.guestId());
+        logger.info("Adding item to cart for actorId={}", actorId);
+        return cartProcedureRepository.addToCart(request, actorId);
     }
 
     public List<FintechDtos.CartItemResponse> getCart(FintechDtos.CartGetRequest request) {
-        logger.info("Fetching cart for customerId={}", request.customerId());
-        return cartProcedureRepository.getCart(request.customerId());
+        String actorId = resolveActorId(request.customerId(), request.guestId());
+        logger.info("Fetching cart for actorId={}", actorId);
+        return cartProcedureRepository.getCart(actorId);
     }
 
     public void updateCartItem(FintechDtos.CartUpdateRequest request) {
-        logger.info("Updating cart item {} quantity={}", request.cartItemId(), request.quantity());
-        int rows = cartProcedureRepository.updateCartItem(request);
+        String actorId = resolveActorId(request.customerId(), request.guestId());
+        logger.info("Updating cart item {} quantity={} actorId={}", request.cartItemId(), request.quantity(), actorId);
+        int rows = cartProcedureRepository.updateCartItem(request, actorId);
         if (rows <= 0) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Cart item not found");
         }
     }
 
     public void removeCartItem(FintechDtos.CartRemoveRequest request) {
-        logger.info("Removing cart item {}", request.cartItemId());
-        int rows = cartProcedureRepository.removeCartItem(request.cartItemId());
+        String actorId = resolveActorId(request.customerId(), request.guestId());
+        logger.info("Removing cart item {} actorId={}", request.cartItemId(), actorId);
+        int rows = cartProcedureRepository.removeCartItem(request.cartItemId(), actorId);
         if (rows <= 0) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Cart item not found");
         }
+    }
+
+    private String resolveActorId(String customerId, String guestId) {
+        if (customerId != null && !customerId.isBlank()) {
+            return customerId;
+        }
+        if (guestId != null && !guestId.isBlank()) {
+            return guestId;
+        }
+        throw new ApiException(HttpStatus.BAD_REQUEST, "customerId or guestId is required");
     }
 }

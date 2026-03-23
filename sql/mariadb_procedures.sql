@@ -137,17 +137,79 @@ BEGIN
 END $$
 
 DROP PROCEDURE IF EXISTS sp_update_cart_item $$
-CREATE PROCEDURE sp_update_cart_item(IN p_cart_item_id VARCHAR(36), IN p_quantity INT)
+CREATE PROCEDURE sp_update_cart_item(IN p_cart_item_id VARCHAR(36), IN p_quantity INT, IN p_customer_id VARCHAR(36))
 BEGIN
-  UPDATE cart_item SET qty = p_quantity WHERE id = p_cart_item_id;
+  UPDATE cart_item ci
+  JOIN cart c ON c.id = ci.cart_id
+  SET ci.qty = p_quantity
+  WHERE ci.id = p_cart_item_id AND c.customer_id = p_customer_id AND LOWER(c.status) = 'active';
   SELECT ROW_COUNT() AS affected_rows;
 END $$
 
 DROP PROCEDURE IF EXISTS sp_remove_cart_item $$
-CREATE PROCEDURE sp_remove_cart_item(IN p_cart_item_id VARCHAR(36))
+CREATE PROCEDURE sp_remove_cart_item(IN p_cart_item_id VARCHAR(36), IN p_customer_id VARCHAR(36))
 BEGIN
-  DELETE FROM cart_item WHERE id = p_cart_item_id;
+  DELETE ci
+  FROM cart_item ci
+  JOIN cart c ON c.id = ci.cart_id
+  WHERE ci.id = p_cart_item_id AND c.customer_id = p_customer_id AND LOWER(c.status) = 'active';
   SELECT ROW_COUNT() AS affected_rows;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_merge_guest_cart $$
+CREATE PROCEDURE sp_merge_guest_cart(IN p_guest_id VARCHAR(36), IN p_customer_id VARCHAR(36))
+BEGIN
+  DECLARE v_guest_cart_id VARCHAR(36);
+  DECLARE v_customer_cart_id VARCHAR(36);
+
+  SELECT id INTO v_guest_cart_id
+  FROM cart
+  WHERE customer_id = p_guest_id AND LOWER(status) = 'active'
+  ORDER BY created_at DESC
+  LIMIT 1;
+
+  IF v_guest_cart_id IS NULL THEN
+    SELECT 0 AS merged_items;
+  ELSE
+    SELECT id INTO v_customer_cart_id
+    FROM cart
+    WHERE customer_id = p_customer_id AND LOWER(status) = 'active'
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    IF v_customer_cart_id IS NULL THEN
+      UPDATE cart
+      SET customer_id = p_customer_id
+      WHERE id = v_guest_cart_id;
+
+      SELECT COUNT(*) AS merged_items
+      FROM cart_item
+      WHERE cart_id = v_guest_cart_id;
+    ELSE
+      UPDATE cart_item ci_target
+      JOIN cart_item ci_guest
+        ON ci_target.cart_id = v_customer_cart_id
+       AND ci_guest.cart_id = v_guest_cart_id
+       AND ci_target.variant_id = ci_guest.variant_id
+      SET ci_target.qty = ci_target.qty + ci_guest.qty;
+
+      INSERT INTO cart_item(id, cart_id, variant_id, qty, price)
+      SELECT UUID(), v_customer_cart_id, ci_guest.variant_id, ci_guest.qty, ci_guest.price
+      FROM cart_item ci_guest
+      LEFT JOIN cart_item ci_target
+        ON ci_target.cart_id = v_customer_cart_id
+       AND ci_target.variant_id = ci_guest.variant_id
+      WHERE ci_guest.cart_id = v_guest_cart_id
+        AND ci_target.id IS NULL;
+
+      SELECT COUNT(*) AS merged_items
+      FROM cart_item
+      WHERE cart_id = v_guest_cart_id;
+
+      DELETE FROM cart_item WHERE cart_id = v_guest_cart_id;
+      UPDATE cart SET status = 'merged' WHERE id = v_guest_cart_id;
+    END IF;
+  END IF;
 END $$
 
 DROP PROCEDURE IF EXISTS sp_create_order $$
@@ -441,6 +503,17 @@ CREATE PROCEDURE sp_register_user(
 )
 BEGIN
   DECLARE v_user_id VARCHAR(36);
+
+  IF p_password IS NULL
+     OR CHAR_LENGTH(p_password) <> 60
+     OR SUBSTRING(p_password, 1, 4) NOT IN ('$2a$', '$2b$', '$2y$')
+     OR SUBSTRING(p_password, 5, 2) NOT REGEXP '^[0-9]{2}$'
+     OR SUBSTRING(p_password, 7, 1) <> '$'
+     OR SUBSTRING(p_password, 8) NOT REGEXP '^[./A-Za-z0-9]{53}$' THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Invalid password hash format. Expected BCrypt hash.';
+  END IF;
+
   SET v_user_id = UUID();
 
   INSERT INTO customer(id, name, email, mobile, password_hash, status, meta, created_at)

@@ -35,7 +35,6 @@ public class ProductController {
     @PostMapping("/list")
     public ApiWrapperResponse<List<FintechDtos.ProductSummaryResponse>> listProducts(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.ProductListRequest> request) {
-        authService.validateToken(request.token());
         logger.info("POST /api/v1/products/list requestId={}", request.requestId());
         return apiResponseFactory.success(
                 request.requestId(),
@@ -47,7 +46,6 @@ public class ProductController {
     @PostMapping("/detail")
     public ApiWrapperResponse<FintechDtos.ProductDetailResponse> productDetail(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.ProductDetailRequest> request) {
-        authService.validateToken(request.token());
         logger.info("POST /api/v1/products/detail requestId={}", request.requestId());
         return apiResponseFactory.success(
                 request.requestId(),
@@ -59,7 +57,6 @@ public class ProductController {
     @PostMapping("/search")
     public ApiWrapperResponse<List<FintechDtos.ProductSummaryResponse>> searchProducts(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.ProductSearchRequest> request) {
-        authService.validateToken(request.token());
         logger.info("POST /api/v1/products/search requestId={}", request.requestId());
         return apiResponseFactory.success(
                 request.requestId(),

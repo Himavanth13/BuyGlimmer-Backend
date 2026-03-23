@@ -14,11 +14,11 @@
     { "key": "registerPhone", "value": "9000000000" },
     { "key": "registerPassword", "value": "StrongPass@123" },
     { "key": "customerId", "value": "CUST-1001" },
+    { "key": "guestId", "value": "GUEST-1001" },
     { "key": "productId", "value": "PROD-1001" },
     { "key": "variantId", "value": "VAR-1001" },
     { "key": "addressId", "value": "ADDR-1001" },
     { "key": "orderId", "value": "ORD-1001" },
-    { "key": "paymentId", "value": "PAY-1001" },
     { "key": "cartItemId", "value": "CART-ITEM-1001" },
     { "key": "couponCode", "value": "SAVE10" },
     { "key": "invoiceId", "value": "INV-1001" },
@@ -72,7 +72,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"{{registerEmail}}\",\n    \"password\": \"{{registerPassword}}\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"{{registerEmail}}\",\n    \"password\": \"{{registerPassword}}\",\n    \"guestId\": \"{{guestId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/auth/login"
           }
@@ -119,7 +119,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"category\": \"men\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"category\": \"men\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/products/list"
           }
@@ -133,7 +133,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"productId\": \"{{productId}}\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"productId\": \"{{productId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/products/detail"
           }
@@ -147,7 +147,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"keyword\": \"shirt\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"keyword\": \"shirt\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/products/search"
           }
@@ -199,7 +199,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"productId\": \"{{productId}}\",\n    \"variantId\": \"{{variantId}}\",\n    \"quantity\": 1\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"guestId\": \"{{guestId}}\",\n    \"productId\": \"{{productId}}\",\n    \"variantId\": \"{{variantId}}\",\n    \"quantity\": 1\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/cart/add"
           }
@@ -213,7 +213,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"guestId\": \"{{guestId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/cart/get"
           }
@@ -227,7 +227,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"cartItemId\": \"{{cartItemId}}\",\n    \"quantity\": 2\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"guestId\": \"{{guestId}}\",\n    \"cartItemId\": \"{{cartItemId}}\",\n    \"quantity\": 2\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/cart/update"
           }
@@ -241,7 +241,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"cartItemId\": \"{{cartItemId}}\"\n  }\n}"
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"guestId\": \"{{guestId}}\",\n    \"cartItemId\": \"{{cartItemId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/cart/remove"
           }
@@ -329,53 +329,6 @@
               "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\"\n  }\n}"
             },
             "url": "{{baseUrl}}/api/v1/orders/detail"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Payments",
-      "item": [
-        {
-          "name": "Create Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\",\n    \"method\": \"UPI\",\n    \"gatewayTxnId\": \"TXN-12345\",\n    \"amount\": 999.00\n  }\n}"
-            },
-            "url": "{{baseUrl}}/api/v1/payments/create"
-          }
-        },
-        {
-          "name": "Verify Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"paymentId\": \"{{paymentId}}\",\n    \"gatewayTxnId\": \"TXN-12345\",\n    \"status\": \"SUCCESS\"\n  }\n}"
-            },
-            "url": "{{baseUrl}}/api/v1/payments/verify"
-          }
-        },
-        {
-          "name": "Payment Callback",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"paymentId\": \"{{paymentId}}\",\n    \"gatewayTxnId\": \"TXN-12345\",\n    \"status\": \"SUCCESS\"\n  }\n}"
-            },
-            "url": "{{baseUrl}}/api/v1/payments/callback"
           }
         }
       ]

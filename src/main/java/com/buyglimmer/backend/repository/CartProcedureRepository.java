@@ -15,10 +15,10 @@ public class CartProcedureRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public FintechDtos.CartItemResponse addToCart(FintechDtos.CartAddRequest request) {
+    public FintechDtos.CartItemResponse addToCart(FintechDtos.CartAddRequest request, String actorId) {
         List<FintechDtos.CartItemResponse> rows = jdbcTemplate.query("CALL sp_add_to_cart(?, ?, ?, ?)",
             ps -> {
-                ps.setString(1, request.customerId());
+                ps.setString(1, actorId);
                 ps.setString(2, request.productId());
                 ps.setString(3, request.variantId());
                 ps.setInt(4, request.quantity());
@@ -54,21 +54,33 @@ public class CartProcedureRepository {
                 ));
     }
 
-    public int updateCartItem(FintechDtos.CartUpdateRequest request) {
+    public int updateCartItem(FintechDtos.CartUpdateRequest request, String actorId) {
         Integer rows = jdbcTemplate.queryForObject(
-            "CALL sp_update_cart_item(?, ?)",
+            "CALL sp_update_cart_item(?, ?, ?)",
             Integer.class,
             request.cartItemId(),
-            request.quantity()
+            request.quantity(),
+            actorId
         );
         return rows == null ? 0 : rows;
     }
 
-    public int removeCartItem(String cartItemId) {
+    public int removeCartItem(String cartItemId, String actorId) {
         Integer rows = jdbcTemplate.queryForObject(
-            "CALL sp_remove_cart_item(?)",
+            "CALL sp_remove_cart_item(?, ?)",
             Integer.class,
-            cartItemId
+            cartItemId,
+            actorId
+        );
+        return rows == null ? 0 : rows;
+    }
+
+    public int mergeGuestCartIntoCustomer(String guestId, String customerId) {
+        Integer rows = jdbcTemplate.queryForObject(
+                "CALL sp_merge_guest_cart(?, ?)",
+                Integer.class,
+                guestId,
+                customerId
         );
         return rows == null ? 0 : rows;
     }
