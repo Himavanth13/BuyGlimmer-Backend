@@ -152,7 +152,7 @@ public class PaymentStatusRepository {
         Integer count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM information_schema.COLUMNS " +
                         "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? " +
-                        "AND LOWER(COLUMN_TYPE) LIKE CONCAT('%''', LOWER(?), ''%')",
+                "AND LOCATE(CONCAT(CHAR(39), LOWER(?), CHAR(39)), LOWER(COLUMN_TYPE)) > 0",
                 Integer.class,
                 tableName,
                 columnName,
