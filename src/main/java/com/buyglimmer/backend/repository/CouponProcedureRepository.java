@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Repository
 public class CouponProcedureRepository {
@@ -20,12 +21,17 @@ public class CouponProcedureRepository {
     private static final Logger logger = LoggerFactory.getLogger(CouponProcedureRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
+    private final AtomicBoolean procedureAvailable = new AtomicBoolean(true);
 
     public CouponProcedureRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public FintechDtos.CouponValidationResponse validateCoupon(FintechDtos.CouponValidateRequest request) {
+        if (!procedureAvailable.get()) {
+            return validateCouponFallback(request);
+        }
+
         List<FintechDtos.CouponValidationResponse> rows;
         try {
             rows = jdbcTemplate.query(
@@ -42,6 +48,7 @@ public class CouponProcedureRepository {
                     ));
         } catch (DataAccessException ex) {
             logger.warn("sp_validate_coupon failed; using SQL fallback for couponCode={}", request.couponCode(), ex);
+            procedureAvailable.set(false);
             return validateCouponFallback(request);
         }
 
@@ -53,26 +60,66 @@ public class CouponProcedureRepository {
 
     private FintechDtos.CouponValidationResponse validateCouponFallback(FintechDtos.CouponValidateRequest request) {
         return jdbcTemplate.query(
-                "SELECT * FROM coupon WHERE code = ? LIMIT 1",
-                ps -> ps.setString(1, request.couponCode()),
+                "SELECT * FROM coupon WHERE LOWER(code) = LOWER(?) LIMIT 1",
+                ps -> ps.setString(1, request.couponCode() == null ? null : request.couponCode().trim()),
                 rs -> {
                     if (!rs.next()) {
                         return new FintechDtos.CouponValidationResponse(false, BigDecimal.ZERO, "Coupon not found");
                     }
 
                     Set<String> columns = columnLabels(rs.getMetaData());
-                    String discountType = columns.contains("discount_type") ? rs.getString("discount_type") : "amount";
-                    BigDecimal discountValue = columns.contains("discount_value") && rs.getBigDecimal("discount_value") != null
-                            ? rs.getBigDecimal("discount_value")
-                            : BigDecimal.ZERO;
-                    BigDecimal minOrderAmount = columns.contains("min_order_amount") && rs.getBigDecimal("min_order_amount") != null
-                            ? rs.getBigDecimal("min_order_amount")
-                            : BigDecimal.ZERO;
-                    boolean active = !columns.contains("active") || rs.getBoolean("active");
+                    String discountType = readString(columns, rs, "discount_type", "type");
+                    if (discountType == null || discountType.isBlank()) {
+                        discountType = "amount";
+                    }
+
+                    BigDecimal discountValue = readDecimal(columns, rs, "discount_value", "value", "discount");
+                    BigDecimal minOrderAmount = readDecimal(
+                            columns,
+                            rs,
+                            "min_order_amount",
+                            "minimum_order_amount",
+                            "min_purchase_amount",
+                            "minimum_purchase_amount"
+                    );
+                    boolean active = readActive(columns, rs);
 
                     return evaluateCoupon(discountType, discountValue, minOrderAmount, active, request.orderAmount());
                 }
         );
+    }
+
+    private String readString(Set<String> columns, java.sql.ResultSet rs, String... names) throws SQLException {
+        for (String name : names) {
+            if (columns.contains(name)) {
+                return rs.getString(name);
+            }
+        }
+        return null;
+    }
+
+    private BigDecimal readDecimal(Set<String> columns, java.sql.ResultSet rs, String... names) throws SQLException {
+        for (String name : names) {
+            if (columns.contains(name)) {
+                BigDecimal value = rs.getBigDecimal(name);
+                return value != null ? value : BigDecimal.ZERO;
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
+    private boolean readActive(Set<String> columns, java.sql.ResultSet rs) throws SQLException {
+        if (columns.contains("active")) {
+            return rs.getBoolean("active");
+        }
+
+        String status = readString(columns, rs, "status", "coupon_status");
+        if (status == null) {
+            return true;
+        }
+
+        String normalized = status.trim().toLowerCase();
+        return normalized.equals("active") || normalized.equals("enabled") || normalized.equals("valid") || normalized.equals("1") || normalized.equals("true");
     }
 
     private Set<String> columnLabels(ResultSetMetaData metaData) throws SQLException {

@@ -1,0 +1,672 @@
+﻿{
+  "info": {
+    "name": "BuyGlimmer Backend APIs - UAT",
+    "_postman_id": "f2b282af-cc08-40c2-9b6e-2c1b66f62101",
+    "description": "Collection for BuyGlimmer backend APIs against UAT using ApiWrapperRequest payloads.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://uatbckend.indumenti.co.in" },
+    { "key": "token", "value": "replace-with-auth-token" },
+    { "key": "requestId", "value": "req-001" },
+    { "key": "registerName", "value": "Postman User" },
+    { "key": "registerEmail", "value": "postman@example.com" },
+    { "key": "registerPhone", "value": "9000000000" },
+    { "key": "registerPassword", "value": "StrongPass@123" },
+    { "key": "customerId", "value": "CUST-1001" },
+    { "key": "guestId", "value": "GUEST-1001" },
+    { "key": "productId", "value": "PROD-1001" },
+    { "key": "variantId", "value": "VAR-1001" },
+    { "key": "addressId", "value": "ADDR-1001" },
+    { "key": "orderId", "value": "ORD-1001" },
+    { "key": "cartItemId", "value": "CART-ITEM-1001" },
+    { "key": "couponCode", "value": "SAVE10" },
+    { "key": "invoiceId", "value": "INV-1001" },
+    { "key": "deliveryId", "value": "DLV-1001" },
+    { "key": "returnId", "value": "RTN-1001" },
+    { "key": "refundId", "value": "RFD-1001" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = Date.now();",
+                  "const rand = Math.floor(Math.random() * 10000).toString().padStart(4, '0');",
+                  "const reqId = `req-${now}-${rand}`;",
+                  "const email = `postman.user.${now}.${rand}@example.com`;",
+                  "const phone = `9${Math.floor(100000000 + Math.random() * 900000000)}`;",
+                  "pm.collectionVariables.set('requestId', reqId);",
+                  "pm.collectionVariables.set('registerEmail', email);",
+                  "pm.collectionVariables.set('registerPhone', phone);",
+                  "console.log('Register payload vars set', { requestId: reqId, registerEmail: email, registerPhone: phone });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"name\": \"{{registerName}}\",\n    \"email\": \"{{registerEmail}}\",\n    \"password\": \"{{registerPassword}}\",\n    \"phone\": \"{{registerPhone}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"{{registerEmail}}\",\n    \"password\": \"{{registerPassword}}\",\n    \"guestId\": \"{{guestId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"{{registerEmail}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/forgot-password"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"email\": \"{{registerEmail}}\",\n    \"resetToken\": \"paste-reset-token-from-forgot-password\",\n    \"newPassword\": \"NewStrongPass@123\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/reset-password"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {}\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/products/list"
+          }
+        },
+        {
+          "name": "Product Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"productId\": \"{{productId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/products/detail"
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"keyword\": \"shirt\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/products/search"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "List Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/wishlist/list"
+          }
+        },
+        {
+          "name": "Toggle Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"productId\": \"{{productId}}\",\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/wishlist/toggle"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Add To Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"guestId\": \"{{guestId}}\",\n    \"productId\": \"{{productId}}\",\n    \"variantId\": \"{{variantId}}\",\n    \"quantity\": 1\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/cart/add"
+          }
+        },
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"guestId\": \"{{guestId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/cart/get"
+          }
+        },
+        {
+          "name": "Update Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"guestId\": \"{{guestId}}\",\n    \"cartItemId\": \"{{cartItemId}}\",\n    \"quantity\": 2\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/cart/update"
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"guestId\": \"{{guestId}}\",\n    \"cartItemId\": \"{{cartItemId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/cart/remove"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Address",
+      "item": [
+        {
+          "name": "Add Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"type\": \"HOME\",\n    \"addressLine\": \"123 Main Street\",\n    \"city\": \"Hyderabad\",\n    \"state\": \"Telangana\",\n    \"pincode\": \"500001\",\n    \"isDefault\": true\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/address/add"
+          }
+        },
+        {
+          "name": "List Addresses",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/address/list"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coupons",
+      "item": [
+        {
+          "name": "Validate Coupon",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"couponCode\": \"{{couponCode}}\",\n    \"orderAmount\": 1499.00\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/coupons/validate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"addressId\": \"{{addressId}}\",\n    \"couponCode\": \"{{couponCode}}\",\n    \"paymentMethod\": \"UPI\",\n    \"items\": [\n      {\n        \"variantId\": \"{{variantId}}\",\n        \"quantity\": 1,\n        \"price\": 999.00\n      }\n    ]\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/orders/create"
+          }
+        },
+        {
+          "name": "Instant Buy",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"addressId\": \"{{addressId}}\",\n    \"variantId\": \"{{variantId}}\",\n    \"quantity\": 1,\n    \"price\": 999.00,\n    \"couponCode\": \"{{couponCode}}\",\n    \"paymentMethod\": \"UPI\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/orders/instant-buy"
+          }
+        },
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/orders/list"
+          }
+        },
+        {
+          "name": "Order Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/orders/detail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Update Payment Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"orderId\": \"{{orderId}}\",\n    \"status\": \"SUCCESS\",\n    \"gatewayTxnId\": \"TXN-POSTMAN-001\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/payments/update-status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/user/profile"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"name\": \"{{registerName}}\",\n    \"email\": \"{{registerEmail}}\",\n    \"mobile\": \"{{registerPhone}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/user/update"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Generate Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\",\n    \"customerId\": \"{{customerId}}\",\n    \"billingEmail\": \"{{registerEmail}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/invoices/generate"
+          }
+        },
+        {
+          "name": "Invoice Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"invoiceId\": \"{{invoiceId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/invoices/detail"
+          }
+        },
+        {
+          "name": "Invoice By Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/invoices/by-order"
+          }
+        },
+        {
+          "name": "Email Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"invoiceId\": \"{{invoiceId}}\",\n    \"recipientEmail\": \"{{registerEmail}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/invoices/email"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Email Notifications",
+      "item": [
+        {
+          "name": "Send Email Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"toEmail\": \"{{registerEmail}}\",\n    \"subject\": \"Order Shipped\",\n    \"messageType\": \"DELIVERY\",\n    \"body\": \"Your order is on the way.\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/notifications/email/send"
+          }
+        },
+        {
+          "name": "Email Notification History",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/notifications/email/history"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delivery",
+      "item": [
+        {
+          "name": "Create Delivery",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"orderId\": \"{{orderId}}\",\n    \"courierName\": \"BlueDart\",\n    \"trackingNumber\": \"TRK-123456\",\n    \"estimatedDeliveryDate\": \"2026-03-25\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/delivery/create"
+          }
+        },
+        {
+          "name": "Delivery Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"deliveryId\": \"{{deliveryId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/delivery/detail"
+          }
+        },
+        {
+          "name": "Update Delivery Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"deliveryId\": \"{{deliveryId}}\",\n    \"status\": \"IN_TRANSIT\",\n    \"currentLocation\": \"Hyderabad Hub\",\n    \"remarks\": \"Package scanned at hub\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/delivery/update-status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Returns",
+      "item": [
+        {
+          "name": "Create Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"orderId\": \"{{orderId}}\",\n    \"customerId\": \"{{customerId}}\",\n    \"reason\": \"SIZE_ISSUE\",\n    \"comments\": \"Need smaller size\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/returns/create"
+          }
+        },
+        {
+          "name": "Return Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"returnId\": \"{{returnId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/returns/detail"
+          }
+        },
+        {
+          "name": "List Returns",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/returns/list"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refunds",
+      "item": [
+        {
+          "name": "Create Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"returnId\": \"{{returnId}}\",\n    \"paymentId\": \"{{paymentId}}\",\n    \"amount\": 999.00,\n    \"reason\": \"RETURN_APPROVED\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/refunds/create"
+          }
+        },
+        {
+          "name": "Refund Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\",\n    \"refundId\": \"{{refundId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/refunds/detail"
+          }
+        },
+        {
+          "name": "List Refunds",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/refunds/list"
+          }
+        }
+      ]
+    },
+    {
+      "name": "OpenAPI",
+      "item": [
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/swagger-ui.html"
+          }
+        },
+        {
+          "name": "OpenAPI JSON",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v3/api-docs"
+          }
+        }
+      ]
+    }
+  ]
+}
+

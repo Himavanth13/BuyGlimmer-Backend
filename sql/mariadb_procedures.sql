@@ -252,8 +252,8 @@ BEGIN
     p_customer_id,
     p_address_id,
     0,
-    'CREATED',
-    'PENDING',
+    'pending',
+    'pending',
     JSON_OBJECT('coupon', IFNULL(p_coupon_code, ''), 'paymentMethod', p_payment_method),
     CURRENT_TIMESTAMP
   );
@@ -270,13 +270,32 @@ END $$
 
 DROP PROCEDURE IF EXISTS sp_add_order_items $$
 CREATE PROCEDURE sp_add_order_items(
-  IN p_order_id VARCHAR(36),
+  IN p_order_id VARCHAR(64),
   IN p_variant_id VARCHAR(36),
   IN p_quantity INT,
   IN p_price DECIMAL(12,2)
 )
 BEGIN
   DECLARE v_order_item_id VARCHAR(36);
+  DECLARE v_order_exists INT DEFAULT 0;
+  DECLARE v_variant_exists INT DEFAULT 0;
+
+  SELECT COUNT(*) INTO v_order_exists
+  FROM orders
+  WHERE id = p_order_id;
+
+  IF v_order_exists = 0 THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid orderId';
+  END IF;
+
+  SELECT COUNT(*) INTO v_variant_exists
+  FROM product_variant
+  WHERE id = p_variant_id;
+
+  IF v_variant_exists = 0 THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid variantId';
+  END IF;
+
   SET v_order_item_id = UUID();
 
   INSERT INTO order_item(id, order_id, variant_id, qty, price, total)
@@ -304,7 +323,7 @@ BEGIN
 END $$
 
 DROP PROCEDURE IF EXISTS sp_get_order_detail $$
-CREATE PROCEDURE sp_get_order_detail(IN p_order_id VARCHAR(36))
+CREATE PROCEDURE sp_get_order_detail(IN p_order_id VARCHAR(64))
 BEGIN
   SELECT o.id AS order_id,
          o.customer_id,
@@ -328,7 +347,7 @@ END $$
 
 DROP PROCEDURE IF EXISTS sp_create_payment $$
 CREATE PROCEDURE sp_create_payment(
-  IN p_order_id VARCHAR(36),
+  IN p_order_id VARCHAR(64),
   IN p_method VARCHAR(20),
   IN p_gateway_txn_id VARCHAR(200),
   IN p_amount DECIMAL(12,2)
@@ -338,9 +357,9 @@ BEGIN
   SET v_payment_id = UUID();
 
   INSERT INTO payment(id, order_id, method, gateway_txn_id, amount, status, meta, created_at)
-  VALUES (v_payment_id, p_order_id, p_method, p_gateway_txn_id, p_amount, 'CREATED', NULL, CURRENT_TIMESTAMP);
+  VALUES (v_payment_id, p_order_id, p_method, p_gateway_txn_id, p_amount, 'pending', NULL, CURRENT_TIMESTAMP);
 
-  UPDATE orders SET payment_status = 'CREATED' WHERE id = p_order_id;
+  UPDATE orders SET payment_status = 'pending' WHERE id = p_order_id;
 
   SELECT id AS payment_id,
          order_id,
@@ -361,11 +380,11 @@ CREATE PROCEDURE sp_verify_payment(
 BEGIN
   UPDATE payment
   SET gateway_txn_id = p_gateway_txn_id,
-      status = p_status
+      status = LOWER(p_status)
   WHERE id = p_payment_id;
 
   UPDATE orders
-  SET payment_status = p_status
+    SET payment_status = LOWER(p_status)
   WHERE id = (SELECT order_id FROM payment WHERE id = p_payment_id LIMIT 1);
 
   SELECT id AS payment_id,
@@ -380,19 +399,40 @@ END $$
 
 DROP PROCEDURE IF EXISTS sp_update_order_payment_status $$
 CREATE PROCEDURE sp_update_order_payment_status(
-  IN p_order_id VARCHAR(36),
+  IN p_order_id VARCHAR(64),
   IN p_status VARCHAR(20),
   IN p_gateway_txn_id VARCHAR(200)
 )
 BEGIN
+  DECLARE v_payment_count INT DEFAULT 0;
+  DECLARE v_payment_method VARCHAR(20) DEFAULT 'UPI';
+  DECLARE v_payment_amount DECIMAL(12,2) DEFAULT 0;
+
   UPDATE orders
-  SET payment_status = p_status
+  SET payment_status = LOWER(p_status)
   WHERE id = p_order_id;
 
-  UPDATE payment
-  SET status = p_status,
-      gateway_txn_id = IFNULL(p_gateway_txn_id, gateway_txn_id)
+  SELECT COUNT(*)
+  INTO v_payment_count
+  FROM payment
   WHERE order_id = p_order_id;
+
+  IF v_payment_count = 0 THEN
+    SELECT COALESCE(NULLIF(JSON_UNQUOTE(JSON_EXTRACT(meta, '$.paymentMethod')), ''), 'UPI'),
+           COALESCE(total_amount, 0)
+    INTO v_payment_method, v_payment_amount
+    FROM orders
+    WHERE id = p_order_id
+    LIMIT 1;
+
+    INSERT INTO payment(id, order_id, method, gateway_txn_id, amount, status, meta, created_at)
+    VALUES (UUID(), p_order_id, v_payment_method, p_gateway_txn_id, v_payment_amount, LOWER(p_status), JSON_OBJECT('source', 'payments/update-status'), CURRENT_TIMESTAMP);
+  ELSE
+    UPDATE payment
+    SET status = LOWER(p_status),
+        gateway_txn_id = IFNULL(p_gateway_txn_id, gateway_txn_id)
+    WHERE order_id = p_order_id;
+  END IF;
 
   SELECT id AS order_id,
          payment_status
@@ -488,14 +528,14 @@ CREATE PROCEDURE sp_validate_coupon(
 BEGIN
   DECLARE v_discount_type VARCHAR(20);
   DECLARE v_discount_value DECIMAL(12,2);
-  DECLARE v_min_order_amount DECIMAL(12,2);
+  DECLARE v_min_order_amount DECIMAL(12,2) DEFAULT 0;
   DECLARE v_active BOOLEAN;
   DECLARE v_is_valid BOOLEAN DEFAULT FALSE;
   DECLARE v_discount_amount DECIMAL(12,2) DEFAULT 0;
   DECLARE v_message VARCHAR(255) DEFAULT 'Invalid coupon';
 
-  SELECT discount_type, discount_value, min_order_amount, active
-  INTO v_discount_type, v_discount_value, v_min_order_amount, v_active
+  SELECT discount_type, discount_value, active
+  INTO v_discount_type, v_discount_value, v_active
   FROM coupon
   WHERE LOWER(code) = LOWER(p_coupon_code)
   LIMIT 1;
@@ -615,7 +655,7 @@ END $$
 
 DROP PROCEDURE IF EXISTS sp_create_delivery $$
 CREATE PROCEDURE sp_create_delivery(
-  IN p_order_id VARCHAR(36),
+  IN p_order_id VARCHAR(64),
   IN p_address_id VARCHAR(36),
   IN p_tracking_number VARCHAR(100),
   IN p_carrier VARCHAR(100),
@@ -664,7 +704,7 @@ BEGIN
 END $$
 
 DROP PROCEDURE IF EXISTS sp_get_delivery_by_order $$
-CREATE PROCEDURE sp_get_delivery_by_order(IN p_order_id VARCHAR(36))
+CREATE PROCEDURE sp_get_delivery_by_order(IN p_order_id VARCHAR(64))
 BEGIN
   SELECT id AS delivery_id,
          order_id,
@@ -681,7 +721,7 @@ END $$
 
 DROP PROCEDURE IF EXISTS sp_create_invoice $$
 CREATE PROCEDURE sp_create_invoice(
-  IN p_order_id VARCHAR(36),
+  IN p_order_id VARCHAR(64),
   IN p_invoice_number VARCHAR(50),
   IN p_total_amount DECIMAL(12,2),
   IN p_tax_amount DECIMAL(12,2),
@@ -707,7 +747,7 @@ BEGIN
 END $$
 
 DROP PROCEDURE IF EXISTS sp_get_invoice_by_order $$
-CREATE PROCEDURE sp_get_invoice_by_order(IN p_order_id VARCHAR(36))
+CREATE PROCEDURE sp_get_invoice_by_order(IN p_order_id VARCHAR(64))
 BEGIN
   SELECT id AS invoice_id,
          order_id,
@@ -724,7 +764,7 @@ END $$
 
 DROP PROCEDURE IF EXISTS sp_initiate_return $$
 CREATE PROCEDURE sp_initiate_return(
-  IN p_order_id VARCHAR(36),
+  IN p_order_id VARCHAR(64),
   IN p_reason VARCHAR(100),
   IN p_notes VARCHAR(1000)
 )
@@ -766,7 +806,7 @@ BEGIN
 END $$
 
 DROP PROCEDURE IF EXISTS sp_get_returns_by_order $$
-CREATE PROCEDURE sp_get_returns_by_order(IN p_order_id VARCHAR(36))
+CREATE PROCEDURE sp_get_returns_by_order(IN p_order_id VARCHAR(64))
 BEGIN
   SELECT id AS return_id,
          order_id,
@@ -840,7 +880,7 @@ END $$
 DROP PROCEDURE IF EXISTS sp_send_email_notification $$
 CREATE PROCEDURE sp_send_email_notification(
   IN p_customer_id VARCHAR(36),
-  IN p_order_id VARCHAR(36),
+  IN p_order_id VARCHAR(64),
   IN p_email_type VARCHAR(50),
   IN p_recipient_email VARCHAR(150),
   IN p_subject VARCHAR(255)
@@ -889,7 +929,7 @@ BEGIN
 END $$
 
 DROP PROCEDURE IF EXISTS sp_get_notifications_by_order $$
-CREATE PROCEDURE sp_get_notifications_by_order(IN p_order_id VARCHAR(36))
+CREATE PROCEDURE sp_get_notifications_by_order(IN p_order_id VARCHAR(64))
 BEGIN
   SELECT id AS notification_id,
          customer_id,
