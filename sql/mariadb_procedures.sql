@@ -407,9 +407,42 @@ BEGIN
   DECLARE v_payment_count INT DEFAULT 0;
   DECLARE v_payment_method VARCHAR(20) DEFAULT 'UPI';
   DECLARE v_payment_amount DECIMAL(12,2) DEFAULT 0;
+  DECLARE v_mapped_payment_status VARCHAR(20) DEFAULT 'pending';
+  DECLARE v_orders_payment_supports_paid INT DEFAULT 0;
+  DECLARE v_payment_table_supports_paid INT DEFAULT 0;
+
+  SET v_mapped_payment_status = CASE UPPER(IFNULL(p_status, ''))
+    WHEN 'SUCCESS' THEN 'paid'
+    WHEN 'PAID' THEN 'paid'
+    WHEN 'FAILED' THEN 'failed'
+    WHEN 'PENDING' THEN 'pending'
+    ELSE LOWER(IFNULL(p_status, 'pending'))
+  END;
+
+  IF v_mapped_payment_status = 'paid' THEN
+    SELECT COUNT(*)
+      INTO v_orders_payment_supports_paid
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'orders'
+      AND COLUMN_NAME = 'payment_status'
+      AND LOWER(COLUMN_TYPE) LIKE '%paid%';
+
+    SELECT COUNT(*)
+      INTO v_payment_table_supports_paid
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'payment'
+      AND COLUMN_NAME = 'status'
+      AND LOWER(COLUMN_TYPE) LIKE '%paid%';
+
+    IF v_orders_payment_supports_paid = 0 OR v_payment_table_supports_paid = 0 THEN
+      SET v_mapped_payment_status = 'success';
+    END IF;
+  END IF;
 
   UPDATE orders
-  SET payment_status = LOWER(p_status)
+  SET payment_status = v_mapped_payment_status
   WHERE id = p_order_id;
 
   SELECT COUNT(*)
@@ -426,10 +459,10 @@ BEGIN
     LIMIT 1;
 
     INSERT INTO payment(id, order_id, method, gateway_txn_id, amount, status, meta, created_at)
-    VALUES (UUID(), p_order_id, v_payment_method, p_gateway_txn_id, v_payment_amount, LOWER(p_status), JSON_OBJECT('source', 'payments/update-status'), CURRENT_TIMESTAMP);
+    VALUES (UUID(), p_order_id, v_payment_method, p_gateway_txn_id, v_payment_amount, v_mapped_payment_status, JSON_OBJECT('source', 'payments/update-status'), CURRENT_TIMESTAMP);
   ELSE
     UPDATE payment
-    SET status = LOWER(p_status),
+    SET status = v_mapped_payment_status,
         gateway_txn_id = IFNULL(p_gateway_txn_id, gateway_txn_id)
     WHERE order_id = p_order_id;
   END IF;
