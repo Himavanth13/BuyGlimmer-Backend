@@ -410,6 +410,7 @@ BEGIN
   DECLARE v_mapped_payment_status VARCHAR(20) DEFAULT 'pending';
   DECLARE v_orders_payment_supports_paid INT DEFAULT 0;
   DECLARE v_payment_table_supports_paid INT DEFAULT 0;
+  DECLARE v_payment_method_supported INT DEFAULT 0;
 
   SET v_mapped_payment_status = CASE UPPER(IFNULL(p_status, ''))
     WHEN 'SUCCESS' THEN 'paid'
@@ -457,6 +458,28 @@ BEGIN
     FROM orders
     WHERE id = p_order_id
     LIMIT 1;
+
+    SELECT COUNT(*)
+      INTO v_payment_method_supported
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'payment'
+      AND COLUMN_NAME = 'method'
+      AND LOWER(COLUMN_TYPE) LIKE CONCAT('%''', LOWER(v_payment_method), '''%');
+
+    IF v_payment_method_supported = 0 THEN
+      SELECT REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(COLUMN_TYPE, ',', 1), '(', -1), '''', '')
+        INTO v_payment_method
+      FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE()
+        AND TABLE_NAME = 'payment'
+        AND COLUMN_NAME = 'method'
+      LIMIT 1;
+
+      IF v_payment_method IS NULL OR v_payment_method = '' THEN
+        SET v_payment_method = 'UPI';
+      END IF;
+    END IF;
 
     INSERT INTO payment(id, order_id, method, gateway_txn_id, amount, status, meta, created_at)
     VALUES (UUID(), p_order_id, v_payment_method, p_gateway_txn_id, v_payment_amount, v_mapped_payment_status, JSON_OBJECT('source', 'payments/update-status'), CURRENT_TIMESTAMP);
