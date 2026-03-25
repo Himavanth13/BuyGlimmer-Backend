@@ -297,6 +297,20 @@
             },
             "url": "{{baseUrl}}/api/v1/coupons/validate"
           }
+        },
+        {
+          "name": "List Coupons",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"requestId\": \"{{requestId}}\",\n  \"data\": {\n    \"customerId\": \"{{customerId}}\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/coupons/list"
+          }
         }
       ]
     },

@@ -58,7 +58,7 @@ public final class FintechDtos {
             String guestId,
             @NotBlank String productId,
             String variantId,
-            @NotNull @Min(1) Integer quantity
+            @NotNull Integer quantity
     ) {
     }
 
@@ -72,7 +72,7 @@ public final class FintechDtos {
             String customerId,
             String guestId,
             @NotBlank String cartItemId,
-            @NotNull @Min(1) Integer quantity
+            @NotNull Integer quantity
     ) {
     }
 
@@ -264,6 +264,20 @@ public final class FintechDtos {
             @NotBlank String customerId,
             @NotBlank String couponCode,
             @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal orderAmount
+    ) {
+    }
+
+    public record CouponListRequest(
+            @NotBlank String customerId
+    ) {
+    }
+
+    public record CouponSummaryResponse(
+            String couponCode,
+            String discountType,
+            BigDecimal discountValue,
+            BigDecimal minOrderAmount,
+            Boolean active
     ) {
     }
 

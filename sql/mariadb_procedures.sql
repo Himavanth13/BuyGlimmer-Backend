@@ -64,24 +64,26 @@ CREATE PROCEDURE sp_add_to_cart(
   IN p_customer_id VARCHAR(36),
   IN p_product_id VARCHAR(36),
   IN p_variant_id VARCHAR(36),
-  IN p_quantity INT
+  IN p_quantity INT,
+  IN p_active_status VARCHAR(16)
 )
 BEGIN
   DECLARE v_cart_id VARCHAR(36);
   DECLARE v_variant_id VARCHAR(36);
   DECLARE v_price DECIMAL(12,2);
   DECLARE v_cart_item_id VARCHAR(36);
+  DECLARE v_existing_item_id VARCHAR(36);
 
   SELECT id INTO v_cart_id
   FROM cart
-  WHERE customer_id = p_customer_id AND LOWER(status) = 'active'
+  WHERE customer_id = p_customer_id AND LOWER(status) = LOWER(p_active_status)
   ORDER BY created_at DESC
   LIMIT 1;
 
   IF v_cart_id IS NULL THEN
     SET v_cart_id = UUID();
     INSERT INTO cart(id, customer_id, status, created_at)
-    VALUES (v_cart_id, p_customer_id, 'active', CURRENT_TIMESTAMP);
+    VALUES (v_cart_id, p_customer_id, p_active_status, CURRENT_TIMESTAMP);
   END IF;
 
   SET v_variant_id = p_variant_id;
@@ -98,9 +100,22 @@ BEGIN
   WHERE id = v_variant_id
   LIMIT 1;
 
-  SET v_cart_item_id = UUID();
-  INSERT INTO cart_item(id, cart_id, variant_id, qty, price)
-  VALUES (v_cart_item_id, v_cart_id, v_variant_id, p_quantity, v_price);
+  SELECT id INTO v_existing_item_id
+  FROM cart_item
+  WHERE cart_id = v_cart_id
+    AND variant_id = v_variant_id
+  LIMIT 1;
+
+  IF v_existing_item_id IS NOT NULL THEN
+    UPDATE cart_item
+    SET qty = qty + p_quantity
+    WHERE id = v_existing_item_id;
+    SET v_cart_item_id = v_existing_item_id;
+  ELSE
+    SET v_cart_item_id = UUID();
+    INSERT INTO cart_item(id, cart_id, variant_id, qty, price)
+    VALUES (v_cart_item_id, v_cart_id, v_variant_id, p_quantity, v_price);
+  END IF;
 
   SELECT ci.id AS cart_item_id,
          c.customer_id,
@@ -118,7 +133,10 @@ BEGIN
 END $$
 
 DROP PROCEDURE IF EXISTS sp_get_cart $$
-CREATE PROCEDURE sp_get_cart(IN p_customer_id VARCHAR(36))
+CREATE PROCEDURE sp_get_cart(
+  IN p_customer_id VARCHAR(36),
+  IN p_active_status VARCHAR(16)
+)
 BEGIN
   SELECT ci.id AS cart_item_id,
          c.customer_id,
@@ -132,7 +150,7 @@ BEGIN
   JOIN cart_item ci ON ci.cart_id = c.id
   JOIN product_variant pv ON pv.id = ci.variant_id
   JOIN product p ON p.id = pv.product_id
-  WHERE c.customer_id = p_customer_id AND LOWER(c.status) = 'active'
+  WHERE c.customer_id = p_customer_id AND LOWER(c.status) = LOWER(p_active_status)
   ORDER BY ci.id;
 END $$
 
@@ -140,7 +158,8 @@ DROP PROCEDURE IF EXISTS sp_update_cart_item $$
 CREATE PROCEDURE sp_update_cart_item(
   IN p_cart_item_id VARCHAR(36),
   IN p_quantity INT,
-  IN p_actor_id VARCHAR(36)
+  IN p_actor_id VARCHAR(36),
+  IN p_active_status VARCHAR(16)
 )
 BEGIN
   UPDATE cart_item ci
@@ -148,7 +167,7 @@ BEGIN
   SET ci.qty = p_quantity
   WHERE ci.id = p_cart_item_id
     AND c.customer_id = p_actor_id
-    AND LOWER(c.status) = 'active';
+    AND LOWER(c.status) = LOWER(p_active_status);
 
   SELECT ROW_COUNT() AS affected_rows;
 END $$
@@ -156,7 +175,8 @@ END $$
 DROP PROCEDURE IF EXISTS sp_remove_cart_item $$
 CREATE PROCEDURE sp_remove_cart_item(
   IN p_cart_item_id VARCHAR(36),
-  IN p_actor_id VARCHAR(36)
+  IN p_actor_id VARCHAR(36),
+  IN p_active_status VARCHAR(16)
 )
 BEGIN
   DELETE ci
@@ -164,7 +184,7 @@ BEGIN
   JOIN cart c ON c.id = ci.cart_id
   WHERE ci.id = p_cart_item_id
     AND c.customer_id = p_actor_id
-    AND LOWER(c.status) = 'active';
+    AND LOWER(c.status) = LOWER(p_active_status);
 
   SELECT ROW_COUNT() AS affected_rows;
 END $$
@@ -172,7 +192,9 @@ END $$
 DROP PROCEDURE IF EXISTS sp_merge_guest_cart $$
 CREATE PROCEDURE sp_merge_guest_cart(
   IN p_guest_id VARCHAR(36),
-  IN p_customer_id VARCHAR(36)
+  IN p_customer_id VARCHAR(36),
+  IN p_active_status VARCHAR(16),
+  IN p_merged_status VARCHAR(16)
 )
 BEGIN
   DECLARE v_guest_cart_id VARCHAR(36);
@@ -187,7 +209,7 @@ BEGIN
   ELSE
     SELECT id INTO v_guest_cart_id
     FROM cart
-    WHERE customer_id = p_guest_id AND LOWER(status) = 'active'
+    WHERE customer_id = p_guest_id AND LOWER(status) = LOWER(p_active_status)
     ORDER BY created_at DESC
     LIMIT 1;
 
@@ -196,14 +218,14 @@ BEGIN
     ELSE
       SELECT id INTO v_customer_cart_id
       FROM cart
-      WHERE customer_id = p_customer_id AND LOWER(status) = 'active'
+      WHERE customer_id = p_customer_id AND LOWER(status) = LOWER(p_active_status)
       ORDER BY created_at DESC
       LIMIT 1;
 
       IF v_customer_cart_id IS NULL THEN
         SET v_customer_cart_id = UUID();
         INSERT INTO cart(id, customer_id, status, created_at)
-        VALUES (v_customer_cart_id, p_customer_id, 'active', CURRENT_TIMESTAMP);
+        VALUES (v_customer_cart_id, p_customer_id, p_active_status, CURRENT_TIMESTAMP);
       END IF;
 
       UPDATE cart_item ci_target
@@ -227,7 +249,7 @@ BEGIN
       SET v_moved_count = ROW_COUNT();
 
       UPDATE cart
-      SET status = 'merged'
+      SET status = p_merged_status
       WHERE id = v_guest_cart_id;
 
       SELECT (v_merged_count + v_moved_count) AS affected_rows;
@@ -590,8 +612,8 @@ BEGIN
   DECLARE v_discount_amount DECIMAL(12,2) DEFAULT 0;
   DECLARE v_message VARCHAR(255) DEFAULT 'Invalid coupon';
 
-  SELECT discount_type, discount_value, active
-  INTO v_discount_type, v_discount_value, v_active
+  SELECT discount_type, discount_value, active, COALESCE(min_order_amount, 0)
+  INTO v_discount_type, v_discount_value, v_active, v_min_order_amount
   FROM coupon
   WHERE LOWER(code) = LOWER(p_coupon_code)
   LIMIT 1;
@@ -618,6 +640,18 @@ BEGIN
   SELECT v_is_valid AS is_valid,
          v_discount_amount AS discount_amount,
          v_message AS message;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_get_coupons $$
+CREATE PROCEDURE sp_get_coupons()
+BEGIN
+  SELECT code AS coupon_code,
+         discount_type,
+         discount_value,
+         COALESCE(min_order_amount, 0) AS min_order_amount,
+         active
+  FROM coupon
+  ORDER BY code;
 END $$
 
 DROP PROCEDURE IF EXISTS sp_fetch_user_profile $$

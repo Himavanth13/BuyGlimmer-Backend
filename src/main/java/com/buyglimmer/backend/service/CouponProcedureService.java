@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CouponProcedureService {
 
@@ -20,5 +22,10 @@ public class CouponProcedureService {
     public FintechDtos.CouponValidationResponse validateCoupon(FintechDtos.CouponValidateRequest request) {
         logger.info("Validating coupon={} for customerId={}", request.couponCode(), request.customerId());
         return couponProcedureRepository.validateCoupon(request);
+    }
+
+    public List<FintechDtos.CouponSummaryResponse> listCoupons(FintechDtos.CouponListRequest request) {
+        logger.info("Fetching coupons for customerId={}", request.customerId());
+        return couponProcedureRepository.listCoupons();
     }
 }

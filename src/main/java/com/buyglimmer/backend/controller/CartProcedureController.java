@@ -6,6 +6,7 @@ import com.buyglimmer.backend.dto.FintechDtos;
 import com.buyglimmer.backend.service.CartProcedureService;
 import com.buyglimmer.backend.util.ApiResponseFactory;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,46 +17,61 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cart")
+@RequestMapping("${cart.module.api.base-path}")
 public class CartProcedureController {
 
     private static final Logger logger = LoggerFactory.getLogger(CartProcedureController.class);
 
     private final CartProcedureService cartProcedureService;
     private final ApiResponseFactory apiResponseFactory;
+    private final String addSuccessMessage;
+    private final String getSuccessMessage;
+    private final String updateSuccessMessage;
+    private final String removeSuccessMessage;
 
-    public CartProcedureController(CartProcedureService cartProcedureService, ApiResponseFactory apiResponseFactory) {
+    public CartProcedureController(
+            CartProcedureService cartProcedureService,
+            ApiResponseFactory apiResponseFactory,
+            @Value("${cart.module.message.add-success}") String addSuccessMessage,
+            @Value("${cart.module.message.get-success}") String getSuccessMessage,
+            @Value("${cart.module.message.update-success}") String updateSuccessMessage,
+            @Value("${cart.module.message.remove-success}") String removeSuccessMessage
+    ) {
         this.cartProcedureService = cartProcedureService;
         this.apiResponseFactory = apiResponseFactory;
+        this.addSuccessMessage = addSuccessMessage;
+        this.getSuccessMessage = getSuccessMessage;
+        this.updateSuccessMessage = updateSuccessMessage;
+        this.removeSuccessMessage = removeSuccessMessage;
     }
 
-    @PostMapping("/add")
+    @PostMapping("${cart.module.api.add-path}")
     public ApiWrapperResponse<FintechDtos.CartItemResponse> addToCart(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.CartAddRequest> request) {
-        logger.info("POST /api/v1/cart/add requestId={}", request.requestId());
-        return apiResponseFactory.success(request.requestId(), "Item added to cart", cartProcedureService.addToCart(request.data()));
+        logger.info("Cart add request requestId={}", request.requestId());
+        return apiResponseFactory.success(request.requestId(), addSuccessMessage, cartProcedureService.addToCart(request.data()));
     }
 
-    @PostMapping("/get")
+    @PostMapping("${cart.module.api.get-path}")
     public ApiWrapperResponse<List<FintechDtos.CartItemResponse>> getCart(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.CartGetRequest> request) {
-        logger.info("POST /api/v1/cart/get requestId={}", request.requestId());
-        return apiResponseFactory.success(request.requestId(), "Cart fetched successfully", cartProcedureService.getCart(request.data()));
+        logger.info("Cart get request requestId={}", request.requestId());
+        return apiResponseFactory.success(request.requestId(), getSuccessMessage, cartProcedureService.getCart(request.data()));
     }
 
-    @PostMapping("/update")
+    @PostMapping("${cart.module.api.update-path}")
     public ApiWrapperResponse<Object> updateCart(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.CartUpdateRequest> request) {
-        logger.info("POST /api/v1/cart/update requestId={}", request.requestId());
+        logger.info("Cart update request requestId={}", request.requestId());
         cartProcedureService.updateCartItem(request.data());
-        return apiResponseFactory.success(request.requestId(), "Cart item updated", null);
+        return apiResponseFactory.success(request.requestId(), updateSuccessMessage, null);
     }
 
-    @PostMapping("/remove")
+    @PostMapping("${cart.module.api.remove-path}")
     public ApiWrapperResponse<Object> removeCart(
             @Valid @RequestBody ApiWrapperRequest<FintechDtos.CartRemoveRequest> request) {
-        logger.info("POST /api/v1/cart/remove requestId={}", request.requestId());
+        logger.info("Cart remove request requestId={}", request.requestId());
         cartProcedureService.removeCartItem(request.data());
-        return apiResponseFactory.success(request.requestId(), "Cart item removed", null);
+        return apiResponseFactory.success(request.requestId(), removeSuccessMessage, null);
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/coupons")
 public class CouponController {
@@ -36,5 +38,13 @@ public class CouponController {
         authService.assertCustomerOwnership(request.token(), request.data().customerId());
         logger.info("POST /api/v1/coupons/validate requestId={}", request.requestId());
         return apiResponseFactory.success(request.requestId(), "Coupon validation completed", couponProcedureService.validateCoupon(request.data()));
+    }
+
+    @PostMapping("/list")
+    public ApiWrapperResponse<List<FintechDtos.CouponSummaryResponse>> listCoupons(
+            @Valid @RequestBody ApiWrapperRequest<FintechDtos.CouponListRequest> request) {
+        authService.assertCustomerOwnership(request.token(), request.data().customerId());
+        logger.info("POST /api/v1/coupons/list requestId={}", request.requestId());
+        return apiResponseFactory.success(request.requestId(), "Coupons fetched successfully", couponProcedureService.listCoupons(request.data()));
     }
 }

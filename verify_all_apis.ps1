@@ -63,6 +63,7 @@ if($cartItemId){
 
 # 4) Address, coupon, user
 $rows+=CallApi 'AddressAdd' '/api/v1/address/add' $token @{customerId=$customerId;type='HOME';addressLine='12 Test Street';city='Hyderabad';state='Telangana';pincode='500001';isDefault=$false}
+$rows+=CallApi 'CouponList' '/api/v1/coupons/list' $token @{customerId=$customerId}
 $rows+=CallApi 'CouponValidate' '/api/v1/coupons/validate' $token @{customerId=$customerId;couponCode='SAVE10';orderAmount=1500.00}
 $rows+=CallApi 'UserProfile' '/api/v1/user/profile' $token @{customerId=$customerId}
 $rows+=CallApi 'UserUpdate' '/api/v1/user/update' $token @{customerId=$customerId;name='Ravi Kumar';email=('ravi.'+$ts+'@example.com');mobile='9876543222'}

@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Repository
 public class CouponProcedureRepository {
@@ -21,24 +20,19 @@ public class CouponProcedureRepository {
     private static final Logger logger = LoggerFactory.getLogger(CouponProcedureRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final AtomicBoolean procedureAvailable = new AtomicBoolean(true);
 
     public CouponProcedureRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public FintechDtos.CouponValidationResponse validateCoupon(FintechDtos.CouponValidateRequest request) {
-        if (!procedureAvailable.get()) {
-            return validateCouponFallback(request);
-        }
-
         List<FintechDtos.CouponValidationResponse> rows;
         try {
             rows = jdbcTemplate.query(
                     "CALL sp_validate_coupon(?, ?, ?)",
                     ps -> {
                         ps.setString(1, request.customerId());
-                        ps.setString(2, request.couponCode());
+                        ps.setString(2, request.couponCode() == null ? null : request.couponCode().trim());
                         ps.setBigDecimal(3, request.orderAmount());
                     },
                     (rs, rowNum) -> new FintechDtos.CouponValidationResponse(
@@ -48,7 +42,6 @@ public class CouponProcedureRepository {
                     ));
         } catch (DataAccessException ex) {
             logger.warn("sp_validate_coupon failed; using SQL fallback for couponCode={}", request.couponCode(), ex);
-            procedureAvailable.set(false);
             return validateCouponFallback(request);
         }
 
@@ -56,6 +49,24 @@ public class CouponProcedureRepository {
             return new FintechDtos.CouponValidationResponse(false, java.math.BigDecimal.ZERO, "Invalid coupon");
         }
         return rows.get(0);
+    }
+
+    public List<FintechDtos.CouponSummaryResponse> listCoupons() {
+        try {
+            return jdbcTemplate.query(
+                    "CALL sp_get_coupons()",
+                    (rs, rowNum) -> new FintechDtos.CouponSummaryResponse(
+                            rs.getString("coupon_code"),
+                            rs.getString("discount_type"),
+                            rs.getBigDecimal("discount_value"),
+                            rs.getBigDecimal("min_order_amount"),
+                            rs.getBoolean("active")
+                    )
+            );
+        } catch (DataAccessException ex) {
+            logger.warn("sp_get_coupons failed; using SQL fallback", ex);
+            return listCouponsFallback();
+        }
     }
 
     private FintechDtos.CouponValidationResponse validateCouponFallback(FintechDtos.CouponValidateRequest request) {
@@ -85,6 +96,28 @@ public class CouponProcedureRepository {
                     boolean active = readActive(columns, rs);
 
                     return evaluateCoupon(discountType, discountValue, minOrderAmount, active, request.orderAmount());
+                }
+        );
+    }
+
+    private List<FintechDtos.CouponSummaryResponse> listCouponsFallback() {
+        return jdbcTemplate.query(
+                "SELECT * FROM coupon ORDER BY code",
+                (rs, rowNum) -> {
+                    Set<String> columns = columnLabels(rs.getMetaData());
+                    String couponCode = readString(columns, rs, "code", "coupon_code");
+                    String discountType = readString(columns, rs, "discount_type", "type");
+                    BigDecimal discountValue = readDecimal(columns, rs, "discount_value", "value", "discount");
+                    BigDecimal minOrderAmount = readDecimal(columns, rs, "min_order_amount", "minimum_order_amount", "min_purchase_amount", "minimum_purchase_amount");
+                    boolean active = readActive(columns, rs);
+
+                    return new FintechDtos.CouponSummaryResponse(
+                            couponCode,
+                            discountType,
+                            discountValue,
+                            minOrderAmount,
+                            active
+                    );
                 }
         );
     }
@@ -141,7 +174,7 @@ public class CouponProcedureRepository {
             return new FintechDtos.CouponValidationResponse(false, BigDecimal.ZERO, "Coupon is inactive");
         }
         if (orderAmount.compareTo(minOrderAmount) < 0) {
-            return new FintechDtos.CouponValidationResponse(false, BigDecimal.ZERO, "Minimum order amount not met");
+            return new FintechDtos.CouponValidationResponse(false, BigDecimal.ZERO, "Minimum order amount is " + minOrderAmount);
         }
 
         BigDecimal discountAmount;
