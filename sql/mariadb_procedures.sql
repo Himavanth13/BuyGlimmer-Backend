@@ -1034,4 +1034,58 @@ BEGIN
   ORDER BY created_at DESC;
 END $$
 
+-- Password reset token procedures
+DROP PROCEDURE IF EXISTS sp_create_password_reset_token $$
+CREATE PROCEDURE sp_create_password_reset_token(
+  IN p_email VARCHAR(150),
+  IN p_reset_token VARCHAR(100),
+  IN p_expires_at_epoch_seconds BIGINT
+)
+BEGIN
+  DELETE FROM password_reset_token
+  WHERE email = p_email AND is_used = FALSE;
+
+  INSERT INTO password_reset_token(id, email, reset_token, expires_at_epoch_seconds, is_used, created_at)
+  VALUES (UUID(), p_email, p_reset_token, p_expires_at_epoch_seconds, FALSE, CURRENT_TIMESTAMP);
+
+  SELECT reset_token,
+         expires_at_epoch_seconds,
+         CAST(created_at AS CHAR) AS created_at
+  FROM password_reset_token
+  WHERE email = p_email AND reset_token = p_reset_token
+  LIMIT 1;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_get_password_reset_token $$
+CREATE PROCEDURE sp_get_password_reset_token(IN p_reset_token VARCHAR(100))
+BEGIN
+  SELECT email,
+         reset_token,
+         expires_at_epoch_seconds,
+         is_used,
+         CAST(created_at AS CHAR) AS created_at
+  FROM password_reset_token
+  WHERE reset_token = p_reset_token
+  LIMIT 1;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_mark_password_reset_token_used $$
+CREATE PROCEDURE sp_mark_password_reset_token_used(IN p_reset_token VARCHAR(100))
+BEGIN
+  UPDATE password_reset_token
+  SET is_used = TRUE
+  WHERE reset_token = p_reset_token;
+
+  SELECT ROW_COUNT() AS affected_rows;
+END $$
+
+DROP PROCEDURE IF EXISTS sp_cleanup_expired_password_reset_tokens $$
+CREATE PROCEDURE sp_cleanup_expired_password_reset_tokens()
+BEGIN
+  DELETE FROM password_reset_token
+  WHERE expires_at_epoch_seconds < UNIX_TIMESTAMP();
+
+  SELECT ROW_COUNT() AS affected_rows;
+END $$
+
 DELIMITER ;

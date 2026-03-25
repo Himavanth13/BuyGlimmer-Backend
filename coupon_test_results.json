@@ -1,0 +1,67 @@
+[
+    {
+        "Api":  "AuthRegister",
+        "Path":  "/api/v1/auth/register",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Registration successful",
+        "Data":  {
+                     "token":  "bgm-f387514a-915a-477f-9e7f-86e4a8bc0330",
+                     "user":  {
+                                  "id":  "6cf941ee-2810-11f1-9410-e66239f41eb8",
+                                  "name":  "Coupon Test",
+                                  "email":  "coupon.1774418643@example.com",
+                                  "phone":  "9774418643",
+                                  "address":  null,
+                                  "avatar":  null
+                              }
+                 }
+    },
+    {
+        "Api":  "CouponValidate_SAVE10",
+        "Path":  "/api/v1/coupons/validate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupon validation completed",
+        "Data":  {
+                     "valid":  false,
+                     "discountAmount":  0,
+                     "message":  "Coupon not found"
+                 }
+    },
+    {
+        "Api":  "CouponValidate_TRIM",
+        "Path":  "/api/v1/coupons/validate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupon validation completed",
+        "Data":  {
+                     "valid":  false,
+                     "discountAmount":  0,
+                     "message":  "Coupon not found"
+                 }
+    },
+    {
+        "Api":  "CouponList",
+        "Path":  "/api/v1/coupons/list",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupons fetched successfully",
+        "Data":  [
+                     {
+                         "couponCode":  "FLAT100",
+                         "discountType":  "flat",
+                         "discountValue":  100.00,
+                         "minOrderAmount":  0,
+                         "active":  true
+                     },
+                     {
+                         "couponCode":  "SAVE20",
+                         "discountType":  "percent",
+                         "discountValue":  20.00,
+                         "minOrderAmount":  0,
+                         "active":  true
+                     }
+                 ]
+    }
+]

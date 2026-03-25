@@ -5,6 +5,7 @@ import com.buyglimmer.backend.dto.AuthDtos;
 import com.buyglimmer.backend.dto.UserDtos;
 import com.buyglimmer.backend.exception.ApiException;
 import com.buyglimmer.backend.repository.CartProcedureRepository;
+import com.buyglimmer.backend.repository.PasswordResetTokenRepository;
 import com.buyglimmer.backend.repository.UserStoredProcedureRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +28,24 @@ public class AuthService {
     private final UserService userService;
     private final UserStoredProcedureRepository userRepository;
     private final CartProcedureRepository cartProcedureRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final PasswordResetEmailService passwordResetEmailService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Map<String, String> tokenOwners = new ConcurrentHashMap<>();
-    private final Map<String, ResetTokenInfo> passwordResetTokens = new ConcurrentHashMap<>();
 
-    public AuthService(BuyGlimmerProperties properties, UserService userService, UserStoredProcedureRepository userRepository,
-                       CartProcedureRepository cartProcedureRepository) {
+    public AuthService(
+            BuyGlimmerProperties properties,
+            UserService userService,
+            UserStoredProcedureRepository userRepository,
+            CartProcedureRepository cartProcedureRepository,
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            PasswordResetEmailService passwordResetEmailService) {
         this.properties = properties;
         this.userService = userService;
         this.userRepository = userRepository;
         this.cartProcedureRepository = cartProcedureRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.passwordResetEmailService = passwordResetEmailService;
     }
 
     public AuthDtos.AuthResponse login(AuthDtos.LoginRequest request) {
@@ -67,35 +76,61 @@ public class AuthService {
     }
 
     public AuthDtos.ForgotPasswordResponse forgotPassword(AuthDtos.ForgotPasswordRequest request) {
-        userRepository.fetchUserByEmail(request.email())
+        // Verify account exists
+        UserStoredProcedureRepository.StoredUser storedUser = userRepository.fetchUserByEmail(request.email())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Account not found", java.util.List.of("Use a registered BuyGlimmer account.")));
 
+        // Generate reset token
         String resetToken = "rst-" + UUID.randomUUID();
         long expiresAtEpochSeconds = Instant.now().plusSeconds(15 * 60).getEpochSecond();
-        passwordResetTokens.put(resetToken, new ResetTokenInfo(request.email(), expiresAtEpochSeconds));
+
+        // Save token to database
+        passwordResetTokenRepository.createPasswordResetToken(request.email(), resetToken, expiresAtEpochSeconds);
+
+        // Send email with reset token
+        passwordResetEmailService.sendPasswordResetToken(request.email(), resetToken, 15 * 60L);
+
+        logger.info("Forgot password request processed for email={}", request.email());
         return new AuthDtos.ForgotPasswordResponse(resetToken, 15 * 60L);
     }
 
     public AuthDtos.PasswordResetResponse resetPassword(AuthDtos.ResetPasswordRequest request) {
-        ResetTokenInfo tokenInfo = passwordResetTokens.get(request.resetToken());
-        if (tokenInfo == null) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid reset token", java.util.List.of("Generate a new token using /api/v1/auth/forgot-password."));
+        // Retrieve token from database
+        PasswordResetTokenRepository.ResetTokenInfo tokenInfo = passwordResetTokenRepository.getPasswordResetToken(request.resetToken())
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Invalid reset token", java.util.List.of("Generate a new token using /api/v1/auth/forgot-password.")));
+
+        // Check if token is already used
+        if (tokenInfo.isUsed()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Reset token already used", java.util.List.of("Generate a new token using /api/v1/auth/forgot-password."));
         }
+
+        // Check if token is expired
         if (tokenInfo.expiresAtEpochSeconds() < Instant.now().getEpochSecond()) {
-            passwordResetTokens.remove(request.resetToken());
             throw new ApiException(HttpStatus.BAD_REQUEST, "Reset token expired", java.util.List.of("Generate a new token using /api/v1/auth/forgot-password."));
         }
+
+        // Verify email matches
         if (!tokenInfo.email().equalsIgnoreCase(request.email())) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Reset token does not match the provided email");
         }
 
+        // Update password in database
         String passwordHash = passwordEncoder.encode(request.newPassword());
         int updatedRows = userRepository.updatePasswordByEmail(request.email(), passwordHash);
         if (updatedRows <= 0) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Account not found", java.util.List.of("Use a registered BuyGlimmer account."));
         }
 
-        passwordResetTokens.remove(request.resetToken());
+        // Mark token as used
+        passwordResetTokenRepository.markPasswordResetTokenUsed(request.resetToken());
+
+        // Send success email
+        UserStoredProcedureRepository.StoredUser storedUser = userRepository.fetchUserByEmail(request.email()).orElse(null);
+        if (storedUser != null) {
+            passwordResetEmailService.sendPasswordResetSuccessEmail(request.email(), storedUser.name());
+        }
+
+        logger.info("Password reset completed for email={}", request.email());
         return new AuthDtos.PasswordResetResponse("Password reset successful");
     }
 
@@ -145,11 +180,5 @@ public class AuthService {
             return authorization.substring(7).trim();
         }
         return authorization.trim();
-    }
-
-    private record ResetTokenInfo(
-            String email,
-            long expiresAtEpochSeconds
-    ) {
     }
 }

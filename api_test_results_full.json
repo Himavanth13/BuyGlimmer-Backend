@@ -1,0 +1,807 @@
+[
+    {
+        "Api":  "AuthRegister",
+        "Path":  "/api/v1/auth/register",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Registration successful",
+        "Data":  {
+                     "token":  "bgm-62712196-03c6-4529-b459-64fc4385d727",
+                     "user":  {
+                                  "id":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                                  "name":  "Full Check User",
+                                  "email":  "full.1774419780@example.com",
+                                  "phone":  "9774419780",
+                                  "address":  null,
+                                  "avatar":  null
+                              }
+                 }
+    },
+    {
+        "Api":  "AuthLogin",
+        "Path":  "/api/v1/auth/login",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Login successful",
+        "Data":  {
+                     "token":  "bgm-f0efe27e-85ff-44e3-908f-208fb7b6375d",
+                     "user":  {
+                                  "id":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                                  "name":  "Full Check User",
+                                  "email":  "full.1774419780@example.com",
+                                  "phone":  "9774419780",
+                                  "address":  null,
+                                  "avatar":  null
+                              }
+                 }
+    },
+    {
+        "Api":  "AuthForgotPassword",
+        "Path":  "/api/v1/auth/forgot-password",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Password reset token generated",
+        "Data":  {
+                     "resetToken":  "rst-4b5e8948-03a0-44cb-97d3-6e2b8dde17f7",
+                     "expiresInSeconds":  900
+                 }
+    },
+    {
+        "Api":  "AuthResetPassword",
+        "Path":  "/api/v1/auth/reset-password",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Password reset completed",
+        "Data":  {
+                     "message":  "Password reset successful"
+                 }
+    },
+    {
+        "Api":  "ProductsList",
+        "Path":  "/api/v1/products/list",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Products fetched successfully",
+        "Data":  [
+                     {
+                         "productId":  "38e46519-1f70-11f1-9651-ed7fb304f8d2",
+                         "name":  "Casual Polo Tshirt",
+                         "brand":  "Clothing",
+                         "description":  "Polo tshirt for daily wear",
+                         "price":  999.00,
+                         "mrp":  1299.00,
+                         "stock":  112
+                     },
+                     {
+                         "productId":  "33167d5b-ab57-4c44-a26e-60ffc5aed3ed",
+                         "name":  "Chronograph Watch",
+                         "brand":  "Accessories",
+                         "description":  "Premium Chronograph Watch",
+                         "price":  1534.00,
+                         "mrp":  2034.00,
+                         "stock":  29
+                     },
+                     {
+                         "productId":  "38e45a96-1f70-11f1-9651-ed7fb304f8d2",
+                         "name":  "Classic Cotton Shirt",
+                         "brand":  "Clothing",
+                         "description":  "Formal slim fit cotton shirt",
+                         "price":  1899.00,
+                         "mrp":  2399.00,
+                         "stock":  17
+                     },
+                     {
+                         "productId":  "89928425-705d-4fbe-a74d-e47d6fbb2e62",
+                         "name":  "Classic Graphic Tee",
+                         "brand":  "Clothing",
+                         "description":  "Premium Classic Graphic Tee",
+                         "price":  857.00,
+                         "mrp":  1357.00,
+                         "stock":  50
+                     },
+                     {
+                         "productId":  "ade04eed-e07c-41f5-9331-b09c91f3e0e4",
+                         "name":  "Classic Leather Belt",
+                         "brand":  "Accessories",
+                         "description":  "Premium Classic Leather Belt",
+                         "price":  1968.00,
+                         "mrp":  2468.00,
+                         "stock":  46
+                     },
+                     {
+                         "productId":  "38e4669e-1f70-11f1-9651-ed7fb304f8d2",
+                         "name":  "Denim Jeans",
+                         "brand":  "Clothing",
+                         "description":  "Stretchable denim jeans",
+                         "price":  1999.00,
+                         "mrp":  2499.00,
+                         "stock":  29
+                     },
+                     {
+                         "productId":  "8da9547b-a3c8-4399-a5fe-8d77db742ed2",
+                         "name":  "Diamond Stud Earrings",
+                         "brand":  "Jewelry",
+                         "description":  "Premium Diamond Stud Earrings",
+                         "price":  1837.00,
+                         "mrp":  2337.00,
+                         "stock":  50
+                     },
+                     {
+                         "productId":  "6a25d2dd-7d1c-4237-a5de-0ed90b0dc98b",
+                         "name":  "Gold Minimalist Ring",
+                         "brand":  "Jewelry",
+                         "description":  "Premium Gold Minimalist Ring",
+                         "price":  909.00,
+                         "mrp":  1409.00,
+                         "stock":  50
+                     },
+                     {
+                         "productId":  "e6afe2fc-aced-4442-a6e8-cb157a90bba8",
+                         "name":  "Leather Crossbody Bag",
+                         "brand":  "Accessories",
+                         "description":  "Premium Leather Crossbody Bag",
+                         "price":  1233.00,
+                         "mrp":  1733.00,
+                         "stock":  50
+                     },
+                     {
+                         "productId":  "643be5ef-02bc-41e0-b644-8d694fe9aab7",
+                         "name":  "Oversized Cotton Hoodie",
+                         "brand":  "Clothing",
+                         "description":  "Premium Oversized Cotton Hoodie",
+                         "price":  1192.00,
+                         "mrp":  1692.00,
+                         "stock":  48
+                     },
+                     {
+                         "productId":  "38c7cf68-f08b-4cbf-a0c6-d8f180e22b44",
+                         "name":  "Pearl Drop Pendant",
+                         "brand":  "Jewelry",
+                         "description":  "Premium Pearl Drop Pendant",
+                         "price":  870.00,
+                         "mrp":  1370.00,
+                         "stock":  49
+                     },
+                     {
+                         "productId":  "7972833c-2956-4fe5-89ee-1930b100f6b3",
+                         "name":  "Polarized Sunglasses",
+                         "brand":  "Accessories",
+                         "description":  "Premium Polarized Sunglasses",
+                         "price":  1146.00,
+                         "mrp":  1646.00,
+                         "stock":  50
+                     },
+                     {
+                         "productId":  "b1d92b73-6cf3-4299-8fb2-acfc9441b442",
+                         "name":  "Premium Linen Shirt",
+                         "brand":  "Clothing",
+                         "description":  "Premium Premium Linen Shirt",
+                         "price":  1016.00,
+                         "mrp":  1516.00,
+                         "stock":  50
+                     },
+                     {
+                         "productId":  "9f64da66-7ef2-405a-bd19-91b935c2cba8",
+                         "name":  "Relaxed Fit Cargo Pants",
+                         "brand":  "Clothing",
+                         "description":  "Premium Relaxed Fit Cargo Pants",
+                         "price":  593.00,
+                         "mrp":  1093.00,
+                         "stock":  49
+                     },
+                     {
+                         "productId":  "6091dbe7-b105-45d4-b698-0036f9d8bf7d",
+                         "name":  "Rose Gold Bracelet",
+                         "brand":  "Jewelry",
+                         "description":  "Premium Rose Gold Bracelet",
+                         "price":  1958.00,
+                         "mrp":  2458.00,
+                         "stock":  49
+                     },
+                     {
+                         "productId":  "1c54e24a-fef5-4275-9560-4788232a30e1",
+                         "name":  "Silk Pocket Square",
+                         "brand":  "Accessories",
+                         "description":  "Premium Silk Pocket Square",
+                         "price":  1154.00,
+                         "mrp":  1654.00,
+                         "stock":  49
+                     },
+                     {
+                         "productId":  "9e41a5b1-ca04-40cb-bb64-40decd78854b",
+                         "name":  "Silver Chain Necklace",
+                         "brand":  "Jewelry",
+                         "description":  "Premium Silver Chain Necklace",
+                         "price":  689.00,
+                         "mrp":  1189.00,
+                         "stock":  50
+                     },
+                     {
+                         "productId":  "3f8c97cb-0762-4dc6-affa-499096940cc3",
+                         "name":  "Vintage Wash Denim Jacket",
+                         "brand":  "Clothing",
+                         "description":  "Premium Vintage Wash Denim Jacket",
+                         "price":  555.00,
+                         "mrp":  1055.00,
+                         "stock":  50
+                     }
+                 ]
+    },
+    {
+        "Api":  "ProductsDetail",
+        "Path":  "/api/v1/products/detail",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Product fetched successfully",
+        "Data":  {
+                     "productId":  "38e45a96-1f70-11f1-9651-ed7fb304f8d2",
+                     "name":  "Classic Cotton Shirt",
+                     "brand":  "Clothing",
+                     "description":  "Formal slim fit cotton shirt",
+                     "price":  1899.00,
+                     "mrp":  2399.00,
+                     "stock":  28,
+                     "sku":  "SHIRT-WHITE-M",
+                     "imageUrl":  "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600"
+                 }
+    },
+    {
+        "Api":  "ProductsSearch",
+        "Path":  "/api/v1/products/search",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Products search completed",
+        "Data":  [
+                     {
+                         "productId":  "38e46519-1f70-11f1-9651-ed7fb304f8d2",
+                         "name":  "Casual Polo Tshirt",
+                         "brand":  "Clothing",
+                         "description":  "Polo tshirt for daily wear",
+                         "price":  999.00,
+                         "mrp":  1299.00,
+                         "stock":  112
+                     },
+                     {
+                         "productId":  "38e45a96-1f70-11f1-9651-ed7fb304f8d2",
+                         "name":  "Classic Cotton Shirt",
+                         "brand":  "Clothing",
+                         "description":  "Formal slim fit cotton shirt",
+                         "price":  1899.00,
+                         "mrp":  2399.00,
+                         "stock":  17
+                     },
+                     {
+                         "productId":  "b1d92b73-6cf3-4299-8fb2-acfc9441b442",
+                         "name":  "Premium Linen Shirt",
+                         "brand":  "Clothing",
+                         "description":  "Premium Premium Linen Shirt",
+                         "price":  1016.00,
+                         "mrp":  1516.00,
+                         "stock":  50
+                     }
+                 ]
+    },
+    {
+        "Api":  "WishlistList",
+        "Path":  "/api/v1/wishlist/list",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Wishlist fetched successfully",
+        "Data":  [
+
+                 ]
+    },
+    {
+        "Api":  "WishlistToggle",
+        "Path":  "/api/v1/wishlist/toggle",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Wishlist updated successfully",
+        "Data":  [
+                     {
+                         "id":  "38e45a96-1f70-11f1-9651-ed7fb304f8d2",
+                         "name":  "Classic Cotton Shirt",
+                         "price":  1899.00,
+                         "category":  "",
+                         "images":  [
+
+                                    ],
+                         "description":  "Formal slim fit cotton shirt",
+                         "sizes":  [
+
+                                   ],
+                         "colors":  [
+
+                                    ],
+                         "specs":  {
+
+                                   },
+                         "reviews":  [
+
+                                     ]
+                     }
+                 ]
+    },
+    {
+        "Api":  "CartAdd",
+        "Path":  "/api/v1/cart/add",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Item added to cart",
+        "Data":  {
+                     "cartItemId":  "1460a382-2813-11f1-9410-e66239f41eb8",
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "productId":  "38e45a96-1f70-11f1-9651-ed7fb304f8d2",
+                     "variantId":  "38fdce2b-1f70-11f1-9651-ed7fb304f8d2",
+                     "productName":  "Classic Cotton Shirt",
+                     "quantity":  1,
+                     "unitPrice":  1999.00,
+                     "lineTotal":  1999.00
+                 }
+    },
+    {
+        "Api":  "CartGet",
+        "Path":  "/api/v1/cart/get",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Cart fetched successfully",
+        "Data":  [
+                     {
+                         "cartItemId":  "1460a382-2813-11f1-9410-e66239f41eb8",
+                         "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                         "productId":  "38e45a96-1f70-11f1-9651-ed7fb304f8d2",
+                         "variantId":  "38fdce2b-1f70-11f1-9651-ed7fb304f8d2",
+                         "productName":  "Classic Cotton Shirt",
+                         "quantity":  1,
+                         "unitPrice":  1999.00,
+                         "lineTotal":  1999.00
+                     }
+                 ]
+    },
+    {
+        "Api":  "CartUpdate",
+        "Path":  "/api/v1/cart/update",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Cart item updated",
+        "Data":  null
+    },
+    {
+        "Api":  "CartRemove",
+        "Path":  "/api/v1/cart/remove",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Cart item removed",
+        "Data":  null
+    },
+    {
+        "Api":  "AddressAdd",
+        "Path":  "/api/v1/address/add",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Address added successfully",
+        "Data":  {
+                     "addressId":  "14996674-2813-11f1-9410-e66239f41eb8",
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "type":  "home",
+                     "addressLine":  "12 Test Street",
+                     "city":  "Hyderabad",
+                     "state":  "Telangana",
+                     "pincode":  "500001",
+                     "isDefault":  false
+                 }
+    },
+    {
+        "Api":  "CouponList",
+        "Path":  "/api/v1/coupons/list",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupons fetched successfully",
+        "Data":  [
+                     {
+                         "couponCode":  "FLAT100",
+                         "discountType":  "flat",
+                         "discountValue":  100.00,
+                         "minOrderAmount":  0,
+                         "active":  true
+                     },
+                     {
+                         "couponCode":  "SAVE20",
+                         "discountType":  "percent",
+                         "discountValue":  20.00,
+                         "minOrderAmount":  0,
+                         "active":  true
+                     }
+                 ]
+    },
+    {
+        "Api":  "CouponValidate",
+        "Path":  "/api/v1/coupons/validate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupon validation completed",
+        "Data":  {
+                     "valid":  false,
+                     "discountAmount":  0,
+                     "message":  "Coupon not found"
+                 }
+    },
+    {
+        "Api":  "UserProfile",
+        "Path":  "/api/v1/user/profile",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Profile fetched successfully",
+        "Data":  {
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "name":  "Full Check User",
+                     "email":  "full.1774419780@example.com",
+                     "mobile":  "9774419780",
+                     "status":  1,
+                     "createdAt":  "2026-03-25 11:53:01"
+                 }
+    },
+    {
+        "Api":  "UserUpdate",
+        "Path":  "/api/v1/user/update",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Profile updated successfully",
+        "Data":  {
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "name":  "Ravi Kumar",
+                     "email":  "ravi.1774419780@example.com",
+                     "mobile":  "8774419780",
+                     "status":  1,
+                     "createdAt":  "2026-03-25 11:53:01"
+                 }
+    },
+    {
+        "Api":  "OrdersCreate",
+        "Path":  "/api/v1/orders/create",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Order created successfully",
+        "Data":  {
+                     "orderId":  "15080c0c-2813-11f1-9410-e66239f41eb8",
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "totalAmount":  999.00,
+                     "status":  "pending",
+                     "paymentStatus":  "pending",
+                     "createdAt":  "2026-03-25 11:53:04"
+                 }
+    },
+    {
+        "Api":  "OrdersList",
+        "Path":  "/api/v1/orders/list",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Orders fetched successfully",
+        "Data":  [
+                     {
+                         "orderId":  "15080c0c-2813-11f1-9410-e66239f41eb8",
+                         "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                         "totalAmount":  999.00,
+                         "status":  "pending",
+                         "paymentStatus":  "pending",
+                         "createdAt":  "2026-03-25 11:53:04"
+                     }
+                 ]
+    },
+    {
+        "Api":  "OrdersDetail",
+        "Path":  "/api/v1/orders/detail",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Order detail fetched successfully",
+        "Data":  {
+                     "orderId":  "15080c0c-2813-11f1-9410-e66239f41eb8",
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "totalAmount":  999.00,
+                     "status":  "pending",
+                     "paymentStatus":  "pending",
+                     "createdAt":  "2026-03-25 11:53:04",
+                     "items":  [
+                                   {
+                                       "orderItemId":  "1512efc7-2813-11f1-9410-e66239f41eb8",
+                                       "variantId":  "38fdce2b-1f70-11f1-9651-ed7fb304f8d2",
+                                       "productName":  "Classic Cotton Shirt",
+                                       "quantity":  1,
+                                       "price":  999.00,
+                                       "total":  999.00
+                                   }
+                               ]
+                 }
+    },
+    {
+        "Api":  "OrdersInstantBuy",
+        "Path":  "/api/v1/orders/instant-buy",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Instant buy order created successfully",
+        "Data":  {
+                     "orderId":  "15815da4-2813-11f1-9410-e66239f41eb8",
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "totalAmount":  999.00,
+                     "status":  "pending",
+                     "paymentStatus":  "pending",
+                     "createdAt":  "2026-03-25 11:53:05"
+                 }
+    },
+    {
+        "Api":  "InvoiceGenerate",
+        "Path":  "/api/v1/invoices/generate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Invoice generated successfully",
+        "Data":  {
+                     "invoiceId":  "15e7a6b9-2813-11f1-9410-e66239f41eb8",
+                     "orderId":  "15080c0c-2813-11f1-9410-e66239f41eb8",
+                     "invoiceNumber":  "INV-20260325-52CC0C",
+                     "invoiceDate":  "2026-03-25 11:53:06",
+                     "totalAmount":  999.00,
+                     "discountAmount":  0.00,
+                     "status":  "generated",
+                     "lineItems":  [
+                                       {
+                                           "lineItemId":  "46b57d67-7dd2-493b-89fa-11e5876c18b8",
+                                           "productId":  "38fdce2b-1f70-11f1-9651-ed7fb304f8d2",
+                                           "productName":  "Classic Cotton Shirt",
+                                           "quantity":  1,
+                                           "unitPrice":  999.00,
+                                           "itemTotal":  999.00,
+                                           "discountAmount":  0
+                                       }
+                                   ]
+                 }
+    },
+    {
+        "Api":  "InvoiceDetail",
+        "Path":  "/api/v1/invoices/detail",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Invoice fetched successfully",
+        "Data":  {
+                     "invoiceId":  "15e7a6b9-2813-11f1-9410-e66239f41eb8",
+                     "orderId":  "15080c0c-2813-11f1-9410-e66239f41eb8",
+                     "invoiceNumber":  "INV-20260325-52CC0C",
+                     "invoiceDate":  "2026-03-25 11:53:06",
+                     "totalAmount":  999.00,
+                     "discountAmount":  0.00,
+                     "status":  "generated",
+                     "lineItems":  [
+                                       {
+                                           "lineItemId":  "fb3b6e24-2943-451f-ad4c-20003b522baa",
+                                           "productId":  "38fdce2b-1f70-11f1-9651-ed7fb304f8d2",
+                                           "productName":  "Classic Cotton Shirt",
+                                           "quantity":  1,
+                                           "unitPrice":  999.00,
+                                           "itemTotal":  999.00,
+                                           "discountAmount":  0
+                                       }
+                                   ]
+                 }
+    },
+    {
+        "Api":  "InvoiceEmail",
+        "Path":  "/api/v1/invoices/email",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Invoice email sent successfully",
+        "Data":  {
+                     "notificationId":  "MAIL-DED6E963",
+                     "customerId":  "15e7a6b9-2813-11f1-9410-e66239f41eb8",
+                     "toEmail":  "full.1774419780@example.com",
+                     "subject":  "Your BuyGlimmer Invoice - INV-20260325-52CC0C",
+                     "messageType":  "INVOICE",
+                     "status":  "SENT",
+                     "sentAt":  "2026-03-25T11:53:06.768821700+05:30"
+                 }
+    },
+    {
+        "Api":  "InvoiceByOrder",
+        "Path":  "/api/v1/invoices/by-order",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Invoice fetched by order successfully",
+        "Data":  {
+                     "invoiceId":  "15e7a6b9-2813-11f1-9410-e66239f41eb8",
+                     "orderId":  "15080c0c-2813-11f1-9410-e66239f41eb8",
+                     "invoiceNumber":  "INV-20260325-52CC0C",
+                     "invoiceDate":  "2026-03-25 11:53:06",
+                     "totalAmount":  999.00,
+                     "discountAmount":  0.00,
+                     "status":  "generated",
+                     "lineItems":  [
+                                       {
+                                           "lineItemId":  "f3387926-3378-4112-9ef0-323ad5b38a6c",
+                                           "productId":  "38fdce2b-1f70-11f1-9651-ed7fb304f8d2",
+                                           "productName":  "Classic Cotton Shirt",
+                                           "quantity":  1,
+                                           "unitPrice":  999.00,
+                                           "itemTotal":  999.00,
+                                           "discountAmount":  0
+                                       }
+                                   ]
+                 }
+    },
+    {
+        "Api":  "EmailSend",
+        "Path":  "/api/v1/notifications/email/send",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Email notification sent successfully",
+        "Data":  {
+                     "notificationId":  "MAIL-7E6A6ACE",
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "toEmail":  "full.1774419780@example.com",
+                     "subject":  "Hello",
+                     "messageType":  "ORDER_UPDATE",
+                     "status":  "SENT",
+                     "sentAt":  "2026-03-25T11:53:07.178711900+05:30"
+                 }
+    },
+    {
+        "Api":  "EmailHistory",
+        "Path":  "/api/v1/notifications/email/history",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Email notification history fetched successfully",
+        "Data":  [
+                     {
+                         "notificationId":  "MAIL-SAMPLE-001",
+                         "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                         "toEmail":  "customer@example.com",
+                         "subject":  "Order Confirmation",
+                         "messageType":  "ORDER",
+                         "status":  "SENT",
+                         "sentAt":  "2026-03-24T11:53:07.190800200+05:30"
+                     }
+                 ]
+    },
+    {
+        "Api":  "DeliveryCreate",
+        "Path":  "/api/v1/delivery/create",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Delivery created successfully",
+        "Data":  {
+                     "deliveryId":  "DLV-28F4EFFC",
+                     "orderId":  "15080c0c-2813-11f1-9410-e66239f41eb8",
+                     "courierName":  "BlueDart",
+                     "trackingNumber":  "TRK-1774419780",
+                     "status":  "CREATED",
+                     "currentLocation":  null,
+                     "estimatedDeliveryDate":  "2026-03-25",
+                     "updatedAt":  "2026-03-25T11:53:07.349396700+05:30"
+                 }
+    },
+    {
+        "Api":  "DeliveryDetail",
+        "Path":  "/api/v1/delivery/detail",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Delivery details fetched successfully",
+        "Data":  {
+                     "deliveryId":  "DLV-28F4EFFC",
+                     "orderId":  "ORDER-UNKNOWN",
+                     "courierName":  "UNKNOWN",
+                     "trackingNumber":  "UNKNOWN",
+                     "status":  "IN_TRANSIT",
+                     "currentLocation":  "Hub",
+                     "estimatedDeliveryDate":  null,
+                     "updatedAt":  "2026-03-25T11:53:07.369548500+05:30"
+                 }
+    },
+    {
+        "Api":  "DeliveryUpdateStatus",
+        "Path":  "/api/v1/delivery/update-status",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Delivery status updated successfully",
+        "Data":  {
+                     "deliveryId":  "DLV-28F4EFFC",
+                     "orderId":  "ORDER-UNKNOWN",
+                     "courierName":  "UNKNOWN",
+                     "trackingNumber":  "UNKNOWN",
+                     "status":  "IN_TRANSIT",
+                     "currentLocation":  "Hyderabad",
+                     "estimatedDeliveryDate":  null,
+                     "updatedAt":  "2026-03-25T11:53:07.384904500+05:30"
+                 }
+    },
+    {
+        "Api":  "ReturnsCreate",
+        "Path":  "/api/v1/returns/create",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Return request created successfully",
+        "Data":  {
+                     "returnId":  "RTN-07DB5FE5",
+                     "orderId":  "15080c0c-2813-11f1-9410-e66239f41eb8",
+                     "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                     "reason":  "SIZE_ISSUE",
+                     "status":  "REQUESTED",
+                     "createdAt":  "2026-03-25T11:53:07.401979800+05:30"
+                 }
+    },
+    {
+        "Api":  "ReturnsDetail",
+        "Path":  "/api/v1/returns/detail",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Return details fetched successfully",
+        "Data":  {
+                     "returnId":  "RTN-07DB5FE5",
+                     "orderId":  "ORDER-UNKNOWN",
+                     "customerId":  "CUSTOMER-UNKNOWN",
+                     "reason":  "NA",
+                     "status":  "UNDER_REVIEW",
+                     "createdAt":  "2026-03-24T11:53:07.418515200+05:30"
+                 }
+    },
+    {
+        "Api":  "ReturnsList",
+        "Path":  "/api/v1/returns/list",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Returns fetched successfully",
+        "Data":  [
+                     {
+                         "returnId":  "RTN-SAMPLE-001",
+                         "orderId":  "ORDER-SAMPLE-001",
+                         "customerId":  "132211f4-2813-11f1-9410-e66239f41eb8",
+                         "reason":  "DAMAGED_ITEM",
+                         "status":  "APPROVED",
+                         "createdAt":  "2026-03-23T11:53:07.428545300+05:30"
+                     }
+                 ]
+    },
+    {
+        "Api":  "RefundsCreate",
+        "Path":  "/api/v1/refunds/create",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Refund initiated successfully",
+        "Data":  {
+                     "refundId":  "RFD-CC3D3991",
+                     "returnId":  "RTN-07DB5FE5",
+                     "paymentId":  "PAY-SAMPLE-001",
+                     "amount":  999,
+                     "status":  "INITIATED",
+                     "processedAt":  "2026-03-25T11:53:07.453930400+05:30"
+                 }
+    },
+    {
+        "Api":  "RefundsDetail",
+        "Path":  "/api/v1/refunds/detail",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Refund details fetched successfully",
+        "Data":  {
+                     "refundId":  "RFD-CC3D3991",
+                     "returnId":  "RTN-UNKNOWN",
+                     "paymentId":  "PAY-UNKNOWN",
+                     "amount":  null,
+                     "status":  "PROCESSING",
+                     "processedAt":  "2026-03-25T07:53:07.469898+05:30"
+                 }
+    },
+    {
+        "Api":  "RefundsList",
+        "Path":  "/api/v1/refunds/list",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Refunds fetched successfully",
+        "Data":  [
+                     {
+                         "refundId":  "RFD-SAMPLE-001",
+                         "returnId":  "RTN-SAMPLE-001",
+                         "paymentId":  "PAY-SAMPLE-001",
+                         "amount":  null,
+                         "status":  "COMPLETED",
+                         "processedAt":  "2026-03-24T11:53:07.478814100+05:30"
+                     }
+                 ]
+    }
+]

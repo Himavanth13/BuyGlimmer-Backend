@@ -1,0 +1,103 @@
+[
+    {
+        "Api":  "AuthRegister",
+        "Path":  "/api/v1/auth/register",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Registration successful",
+        "Data":  {
+                     "token":  "bgm-bc91b614-0b88-486e-97a0-846043f1524e",
+                     "user":  {
+                                  "id":  "99ca6554-2811-11f1-9410-e66239f41eb8",
+                                  "name":  "Coupon Calc Test",
+                                  "email":  "coupon2.1774419147@example.com",
+                                  "phone":  "9774419147",
+                                  "address":  null,
+                                  "avatar":  null
+                              }
+                 }
+    },
+    {
+        "Api":  "CouponList",
+        "Path":  "/api/v1/coupons/list",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupons fetched successfully",
+        "Data":  [
+                     {
+                         "couponCode":  "FLAT100",
+                         "discountType":  "flat",
+                         "discountValue":  100.00,
+                         "minOrderAmount":  0,
+                         "active":  true
+                     },
+                     {
+                         "couponCode":  "SAVE20",
+                         "discountType":  "percent",
+                         "discountValue":  20.00,
+                         "minOrderAmount":  0,
+                         "active":  true
+                     }
+                 ]
+    },
+    {
+        "Api":  "Validate_FLAT100_500",
+        "Path":  "/api/v1/coupons/validate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupon validation completed",
+        "Data":  {
+                     "valid":  true,
+                     "discountAmount":  100.00,
+                     "message":  "Coupon applied successfully"
+                 }
+    },
+    {
+        "Api":  "Validate_FLAT100_1500",
+        "Path":  "/api/v1/coupons/validate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupon validation completed",
+        "Data":  {
+                     "valid":  true,
+                     "discountAmount":  100.00,
+                     "message":  "Coupon applied successfully"
+                 }
+    },
+    {
+        "Api":  "Validate_SAVE20_500",
+        "Path":  "/api/v1/coupons/validate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupon validation completed",
+        "Data":  {
+                     "valid":  true,
+                     "discountAmount":  100.00,
+                     "message":  "Coupon applied successfully"
+                 }
+    },
+    {
+        "Api":  "Validate_SAVE20_1500",
+        "Path":  "/api/v1/coupons/validate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupon validation completed",
+        "Data":  {
+                     "valid":  true,
+                     "discountAmount":  300.00,
+                     "message":  "Coupon applied successfully"
+                 }
+    },
+    {
+        "Api":  "Validate_SAVE20_TRIM_1500",
+        "Path":  "/api/v1/coupons/validate",
+        "Http":  "200",
+        "Status":  "SUCCESS",
+        "Message":  "Coupon validation completed",
+        "Data":  {
+                     "valid":  true,
+                     "discountAmount":  300.00,
+                     "message":  "Coupon applied successfully"
+                 }
+    }
+]
